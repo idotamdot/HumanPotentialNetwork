@@ -7,6 +7,7 @@ import Dashboard from "@/pages/Dashboard";
 import Profile from "@/pages/Profile";
 import GlobalIssues from "@/pages/GlobalIssues";
 import Projects from "@/pages/Projects";
+import ProjectDetail from "@/pages/ProjectDetail";
 import KnowledgeCommons from "@/pages/KnowledgeCommons";
 import Rewards from "@/pages/Rewards";
 import AppLayout from "@/components/layout/AppLayout";
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/profile" component={Profile} />
       <Route path="/issues" component={GlobalIssues} />
       <Route path="/projects" component={Projects} />
+      <Route path="/projects/:id" component={ProjectDetail} />
       <Route path="/knowledge" component={KnowledgeCommons} />
       <Route path="/rewards" component={Rewards} />
       <Route component={NotFound} />

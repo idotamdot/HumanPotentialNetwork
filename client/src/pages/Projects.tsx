@@ -97,8 +97,25 @@ export default function Projects() {
                           </div>
                           
                           <div className="space-y-2">
-                            <Button className="w-full" size="sm">View Project</Button>
-                            <Button variant="outline" className="w-full" size="sm">Leave Project</Button>
+                            <Link href={`/projects/${project.id}`}>
+                              <Button className="w-full" size="sm">View Project</Button>
+                            </Link>
+                            <Button 
+                              variant="outline" 
+                              className="w-full" 
+                              size="sm"
+                              onClick={async (e) => {
+                                e.preventDefault();
+                                try {
+                                  await apiRequest("DELETE", `/api/user-projects/${user?.id}/${project.id}`, {});
+                                  queryClient.invalidateQueries({ queryKey: [`/api/users/${user?.id}/projects`] });
+                                } catch (error) {
+                                  console.error("Error leaving project:", error);
+                                }
+                              }}
+                            >
+                              Leave Project
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -207,7 +224,9 @@ export default function Projects() {
                           <span className="font-medium">{project.contributorCount}</span> contributors
                         </div>
                         
-                        <Button className="w-full">View Details</Button>
+                        <Link href={`/projects/${project.id}`}>
+                          <Button className="w-full">View Details</Button>
+                        </Link>
                       </div>
                     </CardContent>
                   </Card>

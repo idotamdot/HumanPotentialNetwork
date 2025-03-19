@@ -179,7 +179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.delete("/api/users/:userId/projects/:projectId", async (req, res) => {
+  app.delete("/api/user-projects/:userId/:projectId", async (req, res) => {
     const userId = parseInt(req.params.userId);
     const projectId = parseInt(req.params.projectId);
     
