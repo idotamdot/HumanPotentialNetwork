@@ -4,7 +4,8 @@ import {
   issues, Issue, InsertIssue,
   projects, Project, InsertProject,
   userProjects, UserProject, InsertUserProject,
-  projectRecommendations, ProjectRecommendation, InsertProjectRecommendation
+  projectRecommendations, ProjectRecommendation, InsertProjectRecommendation,
+  impacts, Impact, InsertImpact
 } from "@shared/schema";
 
 export interface IStorage {
@@ -56,6 +57,7 @@ export class MemStorage implements IStorage {
   private projects: Map<number, Project>;
   private userProjects: Map<number, UserProject>;
   private projectRecommendations: Map<number, ProjectRecommendation>;
+  private impacts: Map<number, Impact>;
   
   private nextIds: {
     users: number;
@@ -64,6 +66,7 @@ export class MemStorage implements IStorage {
     projects: number;
     userProjects: number;
     projectRecommendations: number;
+    impacts: number;
   };
 
   constructor() {
@@ -73,6 +76,7 @@ export class MemStorage implements IStorage {
     this.projects = new Map();
     this.userProjects = new Map();
     this.projectRecommendations = new Map();
+    this.impacts = new Map();
     
     this.nextIds = {
       users: 1,
@@ -81,6 +85,7 @@ export class MemStorage implements IStorage {
       projects: 1,
       userProjects: 1,
       projectRecommendations: 1,
+      impacts: 1,
     };
     
     // Initialize with some data
@@ -299,6 +304,32 @@ export class MemStorage implements IStorage {
     
     return true;
   }
+  
+  // Impact methods
+  async getAllImpacts(): Promise<Impact[]> {
+    return Array.from(this.impacts.values());
+  }
+  
+  async getUserImpacts(userId: number): Promise<Impact[]> {
+    return Array.from(this.impacts.values()).filter(
+      (impact) => impact.userId === userId
+    );
+  }
+  
+  async createImpact(insertImpact: InsertImpact): Promise<Impact> {
+    const id = this.nextIds.impacts++;
+    const impact: Impact = {
+      ...insertImpact,
+      id,
+      date: new Date()
+    };
+    this.impacts.set(id, impact);
+    return impact;
+  }
+  
+  async getImpact(id: number): Promise<Impact | undefined> {
+    return this.impacts.get(id);
+  }
 
   // Initialize with sample data
   private async initData() {
@@ -471,6 +502,86 @@ export class MemStorage implements IStorage {
       projectId: cleanWaterTech.id,
       matchScore: 85,
       reasonCode: "skill_match:web_development"
+    });
+    
+    // Sample impact data
+    await this.createImpact({
+      userId: user.id,
+      projectId: renewableEnergy.id,
+      region: "North America",
+      country: "United States",
+      location: "San Francisco, CA",
+      latitude: 37,
+      longitude: -122,
+      impactType: "personal",
+      amount: 125,
+      description: "Created educational materials for renewable energy adoption"
+    });
+    
+    await this.createImpact({
+      userId: user.id,
+      projectId: localFood.id, 
+      region: "North America",
+      country: "United States",
+      location: "Oakland, CA",
+      latitude: 37,
+      longitude: -122,
+      impactType: "personal",
+      amount: 75,
+      description: "Connected 5 local farmers to community members"
+    });
+    
+    await this.createImpact({
+      userId: user.id,
+      projectId: digitalLiteracy.id,
+      region: "North America",
+      country: "United States",
+      location: "Berkeley, CA",
+      latitude: 37,
+      longitude: -122,
+      impactType: "personal",
+      amount: 200,
+      description: "Taught 20 seniors basic computer skills"
+    });
+    
+    // Global impact examples
+    await this.createImpact({
+      userId: null,
+      projectId: ruralEducation.id,
+      region: "South America",
+      country: "Brazil",
+      location: "Rural Amazon",
+      latitude: -3,
+      longitude: -60,
+      impactType: "collective",
+      amount: 1250,
+      description: "Provided digital education materials to 500 children"
+    });
+    
+    await this.createImpact({
+      userId: null,
+      projectId: urbanGarden.id,
+      region: "Europe",
+      country: "Germany",
+      location: "Berlin",
+      latitude: 52,
+      longitude: 13,
+      impactType: "collective",
+      amount: 850,
+      description: "Created 15 community gardens providing food for 120 families"
+    });
+    
+    await this.createImpact({
+      userId: null,
+      projectId: cleanWaterTech.id,
+      region: "Africa",
+      country: "Kenya",
+      location: "Nairobi",
+      latitude: -1,
+      longitude: 36,
+      impactType: "collective",
+      amount: 2000,
+      description: "Provided clean water access to 1,500 people"
     });
   }
 }

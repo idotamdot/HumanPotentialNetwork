@@ -105,16 +105,17 @@ export const insertProjectRecommendationSchema = createInsertSchema(projectRecom
 // Impact data schema
 export const impacts = pgTable("impacts", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
+  userId: integer("user_id").references(() => users.id), // null for collective/global impacts
   projectId: integer("project_id").references(() => projects.id),
-  location: text("location").notNull(), // City, Country format
-  latitude: text("latitude").notNull(), // Stored as text for precision
-  longitude: text("longitude").notNull(), // Stored as text for precision
-  category: text("category").notNull(), // environmental, social, educational, etc.
+  region: text("region").notNull(), // Continent or major region
+  country: text("country").notNull(),
+  location: text("location").notNull(), // City or specific area
+  latitude: integer("latitude").notNull(), // Stored as number
+  longitude: integer("longitude").notNull(), // Stored as number
+  impactType: text("impact_type").notNull(), // personal or collective
+  amount: integer("amount").notNull(), // Quantified impact value (points, people affected, etc.)
   description: text("description").notNull(),
-  intensity: integer("intensity").notNull().default(1), // 1-10 scale of impact size
   date: timestamp("date").defaultNow(),
-  imageUrl: text("image_url"),
 });
 
 export const insertImpactSchema = createInsertSchema(impacts).omit({
