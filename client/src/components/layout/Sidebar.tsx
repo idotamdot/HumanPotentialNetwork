@@ -40,9 +40,9 @@ export default function Sidebar() {
           <nav className="mt-8 flex-1 px-2 space-y-2">
             {navItems.map((item) => (
               <Link key={item.href} href={item.href}>
-                <a
+                <div
                   className={cn(
-                    "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
+                    "group flex items-center px-2 py-2 text-sm font-medium rounded-md cursor-pointer",
                     location === item.href
                       ? "bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
@@ -69,7 +69,7 @@ export default function Sidebar() {
                   )}>
                     {item.label}
                   </span>
-                </a>
+                </div>
               </Link>
             ))}
           </nav>
