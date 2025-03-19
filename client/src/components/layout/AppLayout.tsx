@@ -13,7 +13,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-transparent">
+      {/* App-wide Background */}
+      <KidsZoneBackground />
+      
       {/* Sidebar */}
       <Sidebar />
 
@@ -21,7 +24,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Top bar (mobile only) */}
         {isMobile && (
-          <div className="md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 bg-white shadow z-10">
+          <div className="md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 bg-white/80 backdrop-blur-sm shadow z-10">
             <button
               type="button"
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
@@ -48,7 +51,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         )}
 
         {/* Main content */}
-        <main className="flex-1 relative overflow-y-auto focus:outline-none bg-gray-50 pb-16 md:pb-0">
+        <main className="flex-1 relative overflow-y-auto focus:outline-none pb-16 md:pb-0">
           {children}
         </main>
       </div>
