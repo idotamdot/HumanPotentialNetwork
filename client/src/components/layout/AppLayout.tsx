@@ -2,6 +2,7 @@ import { useState, ReactNode } from "react";
 import Sidebar from "./Sidebar";
 import MobileNavigation from "./MobileNavigation";
 import { useMobile } from "@/hooks/use-mobile";
+import KidsZoneBackground from "../../pages/KidsZoneBackground";
 
 type AppLayoutProps = {
   children: ReactNode;
