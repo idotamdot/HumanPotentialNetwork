@@ -469,7 +469,22 @@ export default function ProjectDetail() {
                         className="min-h-[100px]"
                       />
                     </div>
-                    <Button disabled={!comment.trim()}>Post Comment</Button>
+                    <Button 
+                      disabled={!comment.trim()} 
+                      onClick={() => {
+                        if (!comment.trim()) return;
+                        
+                        toast({
+                          title: "Comment Posted",
+                          description: "Your comment has been added to the discussion",
+                        });
+                        
+                        // Reset comment field
+                        setComment("");
+                      }}
+                    >
+                      Post Comment
+                    </Button>
                   </div>
                 )}
                 
@@ -584,7 +599,17 @@ export default function ProjectDetail() {
                 
                 {isMember && (
                   <div className="mt-6">
-                    <Button variant="outline">Upload New Resource</Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        toast({
+                          title: "Upload Initiated",
+                          description: "Resource upload functionality coming soon",
+                        });
+                      }}
+                    >
+                      Upload New Resource
+                    </Button>
                   </div>
                 )}
               </CardContent>

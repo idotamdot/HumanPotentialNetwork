@@ -22,7 +22,9 @@ export default function KnowledgeCommons() {
               className="w-full"
             />
           </div>
-          <Button>Search</Button>
+          <Button onClick={() => {
+            alert("Search functionality coming soon");
+          }}>Search</Button>
         </div>
 
         <Tabs defaultValue="resources">
@@ -49,7 +51,13 @@ export default function KnowledgeCommons() {
                       <p>Contributed by Urban Garden Network</p>
                       <p>Downloaded 2,345 times</p>
                     </div>
-                    <Button variant="outline" size="sm">Download</Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => alert("Download will be available soon")}
+                    >
+                      Download
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -68,7 +76,13 @@ export default function KnowledgeCommons() {
                       <p>Contributed by Climate Tech Alliance</p>
                       <p>6 videos, 3.5 hours total</p>
                     </div>
-                    <Button variant="outline" size="sm">Start Learning</Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => alert("Learning materials will be available soon")}
+                    >
+                      Start Learning
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -87,7 +101,13 @@ export default function KnowledgeCommons() {
                       <p>Contributed by Digital Literacy Program</p>
                       <p>12 lesson plans, 25 worksheets</p>
                     </div>
-                    <Button variant="outline" size="sm">Access</Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => alert("Teaching materials will be available soon")}
+                    >
+                      Access
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -124,7 +144,13 @@ export default function KnowledgeCommons() {
                           Community involvement from the earliest planning stages was critical to success. 
                           Future projects should allocate more time for community engagement before technical implementation.
                         </p>
-                        <Button variant="outline" size="sm">Read Full Report</Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => alert("Full report will be available soon")}
+                        >
+                          Read Full Report
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -159,7 +185,13 @@ export default function KnowledgeCommons() {
                           Teacher training was as important as student resources. Future iterations should 
                           double the time allocated for teacher professional development.
                         </p>
-                        <Button variant="outline" size="sm">Read Full Report</Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => alert("Full report will be available soon")}
+                        >
+                          Read Full Report
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -184,7 +216,12 @@ export default function KnowledgeCommons() {
                       <p>8 modules • 4-6 hours</p>
                       <p>2,156 learners enrolled</p>
                     </div>
-                    <Button size="sm">Enroll</Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => alert("Course enrollment will be available soon")}
+                    >
+                      Enroll
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -203,7 +240,12 @@ export default function KnowledgeCommons() {
                       <p>6 sessions • Live online</p>
                       <p>Next cohort: May 15, 2023</p>
                     </div>
-                    <Button size="sm">Register</Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => alert("Workshop registration will be available soon")}
+                    >
+                      Register
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -222,7 +264,12 @@ export default function KnowledgeCommons() {
                       <p>12 modules • 20 hours</p>
                       <p>Includes portfolio project</p>
                     </div>
-                    <Button size="sm">Enroll</Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => alert("Course enrollment will be available soon")}
+                    >
+                      Enroll
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -253,7 +300,13 @@ export default function KnowledgeCommons() {
                         <div className="text-sm text-gray-500">
                           <span>42 participants • 128 replies • Last activity: 2 hours ago</span>
                         </div>
-                        <Button variant="outline" size="sm">Join Discussion</Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => alert("Discussion forum will be available soon")}
+                        >
+                          Join Discussion
+                        </Button>
                       </div>
                     </div>
                     
@@ -269,7 +322,13 @@ export default function KnowledgeCommons() {
                         <div className="text-sm text-gray-500">
                           <span>28 participants • 76 replies • Last activity: 1 day ago</span>
                         </div>
-                        <Button variant="outline" size="sm">Join Discussion</Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => alert("Discussion forum will be available soon")}
+                        >
+                          Join Discussion
+                        </Button>
                       </div>
                     </div>
                     
@@ -285,7 +344,13 @@ export default function KnowledgeCommons() {
                         <div className="text-sm text-gray-500">
                           <span>36 participants • 92 replies • Last activity: 5 hours ago</span>
                         </div>
-                        <Button variant="outline" size="sm">Join Discussion</Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => alert("Discussion forum will be available soon")}
+                        >
+                          Join Discussion
+                        </Button>
                       </div>
                     </div>
                   </div>
