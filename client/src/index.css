@@ -11,3 +11,28 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 }
+
+/* Global card transparency */
+.card {
+  @apply bg-white/90 backdrop-blur-sm border-opacity-40 !important;
+}
+
+/* Transparent sidebar */
+aside {
+  @apply bg-white/90 backdrop-blur-sm !important;
+}
+
+/* Make white backgrounds transparent */
+.bg-white {
+  @apply bg-white/90 backdrop-blur-sm !important;
+}
+
+/* Adjust background colors */
+.bg-gray-50 {
+  @apply bg-transparent !important;
+}
+
+/* Special styling for hover states */
+.hover\:bg-gray-100:hover {
+  @apply bg-gray-100/80 !important;
+}
