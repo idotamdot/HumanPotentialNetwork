@@ -14,6 +14,7 @@ export default function Sidebar() {
     { href: "/projects", label: "My Projects", icon: sidebarIcons.team },
     { href: "/knowledge", label: "Knowledge Commons", icon: sidebarIcons.book },
     { href: "/rewards", label: "Rewards", icon: sidebarIcons.award },
+    { href: "/kids", label: "Young Changemakers", icon: sidebarIcons.kids },
   ];
 
   return (

@@ -80,4 +80,11 @@ export const sidebarIcons = {
       </svg>
     </Icon>
   ),
+  kids: (
+    <Icon>
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M7 5h10a2 2 0 012 2v8a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2z" />
+      </svg>
+    </Icon>
+  ),
 };
