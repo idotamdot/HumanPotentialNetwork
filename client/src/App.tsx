@@ -10,6 +10,7 @@ import Projects from "@/pages/Projects";
 import ProjectDetail from "@/pages/ProjectDetail";
 import KnowledgeCommons from "@/pages/KnowledgeCommons";
 import Rewards from "@/pages/Rewards";
+import KidsZone from "@/pages/KidsZone";
 import AppLayout from "@/components/layout/AppLayout";
 import { AuthProvider } from "@/hooks/use-auth";
 
@@ -23,6 +24,7 @@ function Router() {
       <Route path="/projects/:id" component={ProjectDetail} />
       <Route path="/knowledge" component={KnowledgeCommons} />
       <Route path="/rewards" component={Rewards} />
+      <Route path="/kids" component={KidsZone} />
       <Route component={NotFound} />
     </Switch>
   );
