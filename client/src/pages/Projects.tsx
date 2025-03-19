@@ -5,6 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Link } from "wouter";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function Projects() {
   const { user } = useAuth();
@@ -173,7 +175,30 @@ export default function Projects() {
                           <span className="font-medium">{project.contributorCount}</span> contributors
                         </div>
                         
-                        <Button className="w-full">Join Project</Button>
+                        <Button 
+                          className="w-full" 
+                          onClick={async () => {
+                            try {
+                              await apiRequest("POST", "/api/user-projects", {
+                                userId: user?.id,
+                                projectId: project.id,
+                                role: "Contributor",
+                                joinDate: new Date().toISOString(),
+                              });
+                              
+                              // Invalidate relevant queries to refresh the data
+                              queryClient.invalidateQueries({ queryKey: [`/api/users/${user?.id}/projects`] });
+                              queryClient.invalidateQueries({ queryKey: [`/api/users/${user?.id}/recommendations`] });
+                              
+                              // Optionally switch to my projects tab
+                              document.querySelector('[data-value="my-projects"]')?.click();
+                            } catch (error) {
+                              console.error("Error joining project:", error);
+                            }
+                          }}
+                        >
+                          Join Project
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
