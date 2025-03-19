@@ -119,7 +119,7 @@ export default function GlobalIssues() {
             {issues?.map((issue: any) => (
               <li key={issue.id}>
                 <Link href={`/issues/${issue.id}`}>
-                  <a className="block hover:bg-gray-50">
+                  <div className="block hover:bg-gray-50 cursor-pointer">
                     <div className="px-4 py-4 sm:px-6">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
@@ -134,7 +134,7 @@ export default function GlobalIssues() {
                         </div>
                       </div>
                     </div>
-                  </a>
+                  </div>
                 </Link>
               </li>
             ))}

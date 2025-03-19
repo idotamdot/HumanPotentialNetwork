@@ -396,9 +396,14 @@ export default function Profile() {
                   
                   <div className="p-4 bg-green-50 rounded-lg">
                     <h3 className="font-medium text-green-700 mb-1">Project Recommendations</h3>
-                    <p className="text-sm text-green-600">
+                    <p className="text-sm text-green-600 mb-3">
                       Your content creation skills would be highly valuable in education-focused projects, especially those targeting underserved communities.
                     </p>
+                    <div className="flex justify-end">
+                      <Button variant="outline" size="sm" asChild>
+                        <a href="/projects">View Projects</a>
+                      </Button>
+                    </div>
                   </div>
                   
                   <div className="p-4 bg-purple-50 rounded-lg">
