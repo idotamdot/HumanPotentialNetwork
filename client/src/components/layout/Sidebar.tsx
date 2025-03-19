@@ -44,7 +44,7 @@ export default function Sidebar() {
                   className={cn(
                     "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
                     location === item.href
-                      ? "bg-primary bg-opacity-10 text-primary"
+                      ? "bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                   )}
                 >
@@ -52,13 +52,23 @@ export default function Sidebar() {
                     className={cn(
                       "mr-3 text-xl",
                       location === item.href
-                        ? "text-primary"
+                        ? item.href === "/kids" 
+                          ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-orange-400 to-yellow-500" 
+                          : "text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-teal-400"
                         : "text-gray-500"
                     )}
                   >
                     {item.icon}
                   </div>
-                  {item.label}
+                  <span className={cn(
+                    location === item.href
+                      ? item.href === "/kids" 
+                        ? "text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-orange-400 to-yellow-500" 
+                        : "text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-teal-400"
+                      : ""
+                  )}>
+                    {item.label}
+                  </span>
                 </a>
               </Link>
             ))}

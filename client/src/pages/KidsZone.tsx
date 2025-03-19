@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FiDownload, FiPrinter, FiStar, FiCpu, FiUsers, FiBookOpen } from "react-icons/fi";
+import KidsZoneBackground from "./KidsZoneBackground";
 
 export default function KidsZone() {
   const [age, setAge] = useState<string>("under8");
