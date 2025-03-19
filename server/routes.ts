@@ -2,7 +2,7 @@ import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
-import { insertUserSchema, insertSkillSchema, insertUserProjectSchema } from "@shared/schema";
+import { insertUserSchema, insertSkillSchema, insertUserProjectSchema, insertImpactSchema } from "@shared/schema";
 import { setupAuth } from "./auth";
 import { RecommendationService } from "./services/recommendation";
 
@@ -252,6 +252,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Current user is now handled by /api/user in auth.ts
+
+  // Impact data routes
+  app.get("/api/impacts", async (req, res) => {
+    try {
+      const impacts = await storage.getAllImpacts();
+      res.json(impacts);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get impact data" });
+    }
+  });
+
+  app.get("/api/users/:userId/impacts", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    
+    try {
+      const impacts = await storage.getUserImpacts(userId);
+      res.json(impacts);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user impact data" });
+    }
+  });
+
+  app.get("/api/impacts/collective", async (req, res) => {
+    try {
+      // Get all impacts and filter for collective ones (where userId is null)
+      const allImpacts = await storage.getAllImpacts();
+      const collectiveImpacts = allImpacts.filter(impact => impact.userId === null);
+      res.json(collectiveImpacts);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get collective impact data" });
+    }
+  });
+
+  app.post("/api/impacts", async (req, res) => {
+    try {
+      const impactData = insertImpactSchema.parse(req.body);
+      const impact = await storage.createImpact(impactData);
+      res.status(201).json(impact);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid impact data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create impact" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

@@ -5,6 +5,7 @@ import ProfileCard from "@/components/dashboard/ProfileCard";
 import ProjectRecommendations from "@/components/dashboard/ProjectRecommendations";
 import ActiveProjects from "@/components/dashboard/ActiveProjects";
 import GlobalIssues from "@/components/dashboard/GlobalIssues";
+import ImpactMap from "@/components/dashboard/ImpactMap";
 
 export default function Dashboard() {
   const { isLoading } = useAuth();
@@ -32,6 +33,11 @@ export default function Dashboard() {
 
           {/* Project Recommendations */}
           <ProjectRecommendations />
+        </div>
+
+        {/* Impact Map (full width) */}
+        <div className="mt-8 grid grid-cols-1 gap-8">
+          <ImpactMap />
         </div>
 
         {/* Three column layout (2:1 ratio) */}
