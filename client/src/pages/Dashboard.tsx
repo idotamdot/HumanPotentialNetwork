@@ -2,7 +2,7 @@ import { useAuth } from "@/hooks/use-auth";
 import WelcomeCard from "@/components/dashboard/WelcomeCard";
 import StatCards from "@/components/dashboard/StatCards";
 import ProfileCard from "@/components/dashboard/ProfileCard";
-import RecommendedProjects from "@/components/dashboard/RecommendedProjects";
+import ProjectRecommendations from "@/components/dashboard/ProjectRecommendations";
 import ActiveProjects from "@/components/dashboard/ActiveProjects";
 import GlobalIssues from "@/components/dashboard/GlobalIssues";
 
@@ -30,8 +30,8 @@ export default function Dashboard() {
           {/* Profile Card */}
           <ProfileCard />
 
-          {/* Recommended Projects */}
-          <RecommendedProjects />
+          {/* Project Recommendations */}
+          <ProjectRecommendations />
         </div>
 
         {/* Three column layout (2:1 ratio) */}

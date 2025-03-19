@@ -7,8 +7,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, getQueryFn, queryClient } from "@/lib/queryClient";
-import { Refresh, BadgeCheck, Clock } from "lucide-react";
+import { RefreshCw, BadgeCheck, Clock } from "lucide-react";
 import { Link } from "wouter";
+import { Project, ProjectRecommendation } from "@shared/schema";
+
+interface ProjectRecommendationItem {
+  project: Project;
+  recommendation: ProjectRecommendation;
+}
 
 export default function ProjectRecommendations() {
   const { user } = useAuth();
@@ -17,11 +23,11 @@ export default function ProjectRecommendations() {
 
   // Fetch project recommendations
   const {
-    data: recommendations = [],
+    data: recommendations = [] as ProjectRecommendationItem[],
     isLoading,
     isError,
     error
-  } = useQuery({
+  } = useQuery<ProjectRecommendationItem[]>({
     queryKey: user ? [`/api/users/${user.id}/recommendations`] : [],
     queryFn: getQueryFn({ on401: "throw" }),
     enabled: !!user,
@@ -86,7 +92,7 @@ export default function ProjectRecommendations() {
         <CardFooter className="flex justify-between">
           <div className="text-sm text-muted-foreground">Updating recommendations...</div>
           <Button disabled variant="outline" size="sm">
-            <Refresh className="mr-2 h-4 w-4" />
+            <RefreshCw className="mr-2 h-4 w-4" />
             Regenerate
           </Button>
         </CardFooter>
@@ -115,7 +121,7 @@ export default function ProjectRecommendations() {
             size="sm"
             disabled={isGenerating || regenerateMutation.isPending}
           >
-            <Refresh className="mr-2 h-4 w-4" />
+            <RefreshCw className="mr-2 h-4 w-4" />
             Try Again
           </Button>
         </CardFooter>
@@ -182,7 +188,7 @@ export default function ProjectRecommendations() {
           size="sm"
           disabled={isGenerating || regenerateMutation.isPending}
         >
-          <Refresh className="mr-2 h-4 w-4" />
+          <RefreshCw className="mr-2 h-4 w-4" />
           {isGenerating || regenerateMutation.isPending ? "Generating..." : "Regenerate"}
         </Button>
       </CardFooter>
