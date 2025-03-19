@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { z } from "zod";
 import { insertUserSchema, insertSkillSchema, insertUserProjectSchema } from "@shared/schema";
 import { setupAuth } from "./auth";
+import { RecommendationService } from "./services/recommendation";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication
@@ -214,6 +215,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(recommendations);
     } catch (error) {
       res.status(500).json({ message: "Failed to get project recommendations" });
+    }
+  });
+  
+  // Generate recommendations using the enhanced algorithm
+  app.post("/api/users/:userId/recommendations/generate", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    
+    try {
+      // Check if the user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Generate new recommendations
+      const success = await RecommendationService.generateRecommendations(userId);
+      
+      if (success) {
+        const recommendations = await storage.getProjectRecommendations(userId);
+        return res.status(200).json({ 
+          message: "Recommendations generated successfully", 
+          count: recommendations.length,
+          recommendations
+        });
+      } else {
+        return res.status(500).json({ message: "Failed to generate recommendations" });
+      }
+    } catch (error) {
+      console.error("Error generating recommendations:", error);
+      res.status(500).json({ message: "An error occurred while generating recommendations" });
     }
   });
   

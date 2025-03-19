@@ -215,8 +215,8 @@ export class RecommendationService {
    * Clear existing recommendations for a user
    */
   private static async clearExistingRecommendations(userId: number): Promise<void> {
-    // In this in-memory implementation, we're just adding new recommendations
-    // For a real database implementation, we would delete existing recommendations first
+    // Clear all recommendations for the user using our storage method
+    await storage.clearProjectRecommendations(userId);
   }
 
   /**

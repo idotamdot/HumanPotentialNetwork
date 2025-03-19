@@ -40,6 +40,7 @@ export interface IStorage {
   // Recommendations methods
   getProjectRecommendations(userId: number): Promise<{project: Project, recommendation: ProjectRecommendation}[]>;
   createProjectRecommendation(rec: InsertProjectRecommendation): Promise<ProjectRecommendation>;
+  clearProjectRecommendations(userId: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -278,6 +279,19 @@ export class MemStorage implements IStorage {
     };
     this.projectRecommendations.set(id, recommendation);
     return recommendation;
+  }
+  
+  async clearProjectRecommendations(userId: number): Promise<boolean> {
+    // Find all recommendations for this user
+    const recommendations = Array.from(this.projectRecommendations.values())
+      .filter(rec => rec.userId === userId);
+      
+    // Delete each recommendation
+    recommendations.forEach(rec => {
+      this.projectRecommendations.delete(rec.id);
+    });
+    
+    return true;
   }
 
   // Initialize with sample data
