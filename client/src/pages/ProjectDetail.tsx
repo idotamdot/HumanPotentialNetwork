@@ -503,7 +503,18 @@ export default function ProjectDetail() {
                             Added by {resource.addedBy} • {new Date(resource.dateAdded).toLocaleDateString()}
                           </div>
                         </div>
-                        <Button variant="outline" size="sm">View</Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => {
+                            toast({
+                              title: "Resource Opened",
+                              description: "The resource is being displayed",
+                            });
+                          }}
+                        >
+                          View
+                        </Button>
                       </div>
                     ))}
                   </div>
@@ -515,7 +526,18 @@ export default function ProjectDetail() {
                         <div className="text-sm text-gray-600">Detailed overview of project goals, timeline, and milestones</div>
                         <div className="text-xs text-gray-500 mt-1">Added by Maria Chen • March 15, 2023</div>
                       </div>
-                      <Button variant="outline" size="sm">View</Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => {
+                          toast({
+                            title: "Resource Opened",
+                            description: "Viewing Project Plan Document",
+                          });
+                        }}
+                      >
+                        View
+                      </Button>
                     </div>
                     
                     <div className="flex items-start p-3 border rounded-md">
@@ -524,7 +546,18 @@ export default function ProjectDetail() {
                         <div className="text-sm text-gray-600">Baseline data and initial research findings</div>
                         <div className="text-xs text-gray-500 mt-1">Added by James Wilson • April 2, 2023</div>
                       </div>
-                      <Button variant="outline" size="sm">View</Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => {
+                          toast({
+                            title: "Resource Opened",
+                            description: "Viewing Research Data",
+                          });
+                        }}
+                      >
+                        View
+                      </Button>
                     </div>
                     
                     <div className="flex items-start p-3 border rounded-md">
@@ -533,7 +566,18 @@ export default function ProjectDetail() {
                         <div className="text-sm text-gray-600">Logos, graphics, and design templates for the project</div>
                         <div className="text-xs text-gray-500 mt-1">Added by Layla Johnson • April 10, 2023</div>
                       </div>
-                      <Button variant="outline" size="sm">View</Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => {
+                          toast({
+                            title: "Resource Opened",
+                            description: "Viewing Design Assets",
+                          });
+                        }}
+                      >
+                        View
+                      </Button>
                     </div>
                   </div>
                 )}
