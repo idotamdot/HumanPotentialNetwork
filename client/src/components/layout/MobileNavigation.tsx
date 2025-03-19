@@ -17,9 +17,9 @@ export default function MobileNavigation() {
       <div className="flex justify-around">
         {navItems.map((item) => (
           <Link key={item.href} href={item.href}>
-            <a
+            <div
               className={cn(
-                "flex flex-col items-center py-2",
+                "flex flex-col items-center py-2 cursor-pointer",
                 location === item.href
                   ? "text-primary"
                   : "text-gray-500"
@@ -27,7 +27,7 @@ export default function MobileNavigation() {
             >
               <div className="text-xl">{item.icon}</div>
               <span className="text-xs mt-1">{item.label}</span>
-            </a>
+            </div>
           </Link>
         ))}
       </div>
