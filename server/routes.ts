@@ -3,8 +3,11 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
 import { insertUserSchema, insertSkillSchema, insertUserProjectSchema } from "@shared/schema";
+import { setupAuth } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up authentication
+  setupAuth(app);
   // User routes
   app.get("/api/users/:id", async (req, res) => {
     const id = parseInt(req.params.id);
@@ -214,20 +217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Current user (temporary auth for demo - in a real app this would use proper auth)
-  app.get("/api/me", async (req, res) => {
-    try {
-      // For demo purposes, return the first user
-      const users = Array.from((storage as any).users.values());
-      if (users.length > 0) {
-        const { password, ...userWithoutPassword } = users[0];
-        return res.json(userWithoutPassword);
-      }
-      res.status(404).json({ message: "No users found" });
-    } catch (error) {
-      res.status(500).json({ message: "Server error" });
-    }
-  });
+  // Current user is now handled by /api/user in auth.ts
 
   const httpServer = createServer(app);
   return httpServer;
