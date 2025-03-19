@@ -142,7 +142,7 @@ export default function ProjectRecommendations() {
           </div>
         ) : (
           <>
-            {recommendations.slice(0, 3).map((rec: any) => (
+            {recommendations.slice(0, 3).map((rec: ProjectRecommendationItem) => (
               <Link key={rec.project.id} href={`/projects/${rec.project.id}`}>
                 <div className="flex items-start p-2 rounded-md cursor-pointer hover:bg-muted transition-colors">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 mr-4">
