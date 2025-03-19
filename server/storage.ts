@@ -41,6 +41,12 @@ export interface IStorage {
   getProjectRecommendations(userId: number): Promise<{project: Project, recommendation: ProjectRecommendation}[]>;
   createProjectRecommendation(rec: InsertProjectRecommendation): Promise<ProjectRecommendation>;
   clearProjectRecommendations(userId: number): Promise<boolean>;
+  
+  // Impact methods
+  getAllImpacts(): Promise<Impact[]>;
+  getUserImpacts(userId: number): Promise<Impact[]>;
+  createImpact(impact: InsertImpact): Promise<Impact>;
+  getImpact(id: number): Promise<Impact | undefined>;
 }
 
 export class MemStorage implements IStorage {

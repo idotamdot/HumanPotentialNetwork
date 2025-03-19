@@ -102,6 +102,26 @@ export const insertProjectRecommendationSchema = createInsertSchema(projectRecom
   createdAt: true,
 });
 
+// Impact data schema
+export const impacts = pgTable("impacts", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  projectId: integer("project_id").references(() => projects.id),
+  location: text("location").notNull(), // City, Country format
+  latitude: text("latitude").notNull(), // Stored as text for precision
+  longitude: text("longitude").notNull(), // Stored as text for precision
+  category: text("category").notNull(), // environmental, social, educational, etc.
+  description: text("description").notNull(),
+  intensity: integer("intensity").notNull().default(1), // 1-10 scale of impact size
+  date: timestamp("date").defaultNow(),
+  imageUrl: text("image_url"),
+});
+
+export const insertImpactSchema = createInsertSchema(impacts).omit({
+  id: true,
+  date: true,
+});
+
 // Export types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -120,3 +140,6 @@ export type InsertUserProject = z.infer<typeof insertUserProjectSchema>;
 
 export type ProjectRecommendation = typeof projectRecommendations.$inferSelect;
 export type InsertProjectRecommendation = z.infer<typeof insertProjectRecommendationSchema>;
+
+export type Impact = typeof impacts.$inferSelect;
+export type InsertImpact = z.infer<typeof insertImpactSchema>;
