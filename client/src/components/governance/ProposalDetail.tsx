@@ -205,11 +205,23 @@ const ProposalDetail = ({ proposalId, isOpen, onClose }: ProposalDetailProps) =>
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         {isLoading ? (
-          <div className="flex justify-center p-8">Loading proposal details...</div>
+          <>
+            <DialogHeader>
+              <DialogTitle>Loading Proposal</DialogTitle>
+              <DialogDescription>Please wait while we load the proposal details...</DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-center p-8">Loading proposal details...</div>
+          </>
         ) : !proposal ? (
-          <div className="text-center p-4 text-destructive">
-            Proposal not found
-          </div>
+          <>
+            <DialogHeader>
+              <DialogTitle>Proposal Not Found</DialogTitle>
+              <DialogDescription>The requested proposal could not be found.</DialogDescription>
+            </DialogHeader>
+            <div className="text-center p-4 text-destructive">
+              Proposal not found or has been deleted.
+            </div>
+          </>
         ) : (
           <>
             <DialogHeader>
@@ -339,19 +351,19 @@ const ProposalDetail = ({ proposalId, isOpen, onClose }: ProposalDetailProps) =>
                     {votesData.slice(0, 5).map(({ vote, user }) => (
                       <div key={vote.id} className="flex items-center gap-3 p-2 bg-muted rounded-md">
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={user.avatar || ""} alt={user.name} />
-                          <AvatarFallback>{user.name.substring(0, 2)}</AvatarFallback>
+                          <AvatarImage src={user?.avatar || ""} alt={user?.name || "User"} />
+                          <AvatarFallback>{user?.name ? user.name.substring(0, 2) : "U"}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-medium text-sm">{user.name}</span>
+                            <span className="font-medium text-sm">{user?.name || "Anonymous User"}</span>
                             <span className="text-xs text-muted-foreground">
-                              voted {format(new Date(vote.createdAt || new Date()), "PPp")}
+                              voted {format(new Date(vote?.createdAt || new Date()), "PPp")}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <Badge variant="outline">{vote.vote}</Badge>
-                            {vote.reason && <span className="text-xs text-muted-foreground">- {vote.reason}</span>}
+                            <Badge variant="outline">{vote?.vote || "No vote"}</Badge>
+                            {vote?.reason && <span className="text-xs text-muted-foreground">- {vote.reason}</span>}
                           </div>
                         </div>
                       </div>
@@ -401,15 +413,15 @@ const ProposalDetail = ({ proposalId, isOpen, onClose }: ProposalDetailProps) =>
                       <div key={comment.id} className="p-3 border rounded-md">
                         <div className="flex items-center gap-2 mb-2">
                           <Avatar className="h-6 w-6">
-                            <AvatarImage src={user.avatar || ""} alt={user.name} />
-                            <AvatarFallback>{user.name.substring(0, 2)}</AvatarFallback>
+                            <AvatarImage src={user?.avatar || ""} alt={user?.name || "User"} />
+                            <AvatarFallback>{user?.name ? user.name.substring(0, 2) : "U"}</AvatarFallback>
                           </Avatar>
-                          <span className="font-medium text-sm">{user.name}</span>
+                          <span className="font-medium text-sm">{user?.name || "Anonymous User"}</span>
                           <span className="text-xs text-muted-foreground">
-                            {format(new Date(comment.createdAt || new Date()), "PPp")}
+                            {format(new Date(comment?.createdAt || new Date()), "PPp")}
                           </span>
                         </div>
-                        <p className="text-sm">{comment.content}</p>
+                        <p className="text-sm">{comment?.content || "No comment"}</p>
                       </div>
                     ))}
                   </div>
