@@ -37,9 +37,147 @@ aside {
   @apply bg-gray-100/60 !important;
 }
 
-/* Add gradient effects to make components pop */
+/* Glowing text effects */
 .gradient-text {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-500 !important;
+  text-shadow: 0 0 5px rgba(139, 92, 246, 0.3);
+  transition: text-shadow 0.3s ease;
+}
+
+/* Make headings glow */
+h1, h2, h3, h4, h5, h6 {
+  text-shadow: 0 0 8px rgba(139, 92, 246, 0.2);
+  transition: text-shadow 0.3s ease;
+}
+
+/* Special glow effects for headings */
+h1 {
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+  letter-spacing: 0.025em;
+}
+
+h1:hover {
+  text-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
+}
+
+/* Create a special kids-zone title with animated rainbow glow */
+.kids-zone-title {
+  font-weight: bold;
+  position: relative;
+  color: transparent;
+  background: linear-gradient(90deg, 
+    rgba(255, 0, 0, 0.8),
+    rgba(255, 154, 0, 0.8),
+    rgba(208, 222, 33, 0.8),
+    rgba(79, 220, 74, 0.8),
+    rgba(63, 218, 216, 0.8),
+    rgba(47, 201, 226, 0.8),
+    rgba(28, 127, 238, 0.8),
+    rgba(95, 21, 242, 0.8),
+    rgba(186, 12, 248, 0.8),
+    rgba(251, 7, 217, 0.8),
+    rgba(255, 0, 0, 0.8)
+  );
+  background-size: 200% 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  text-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+  animation: rainbow-text-animation 6s linear infinite;
+}
+
+@keyframes rainbow-text-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Add glow effect to all buttons */
+button, .btn, [role="button"] {
+  transition: all 0.3s ease !important;
+  box-shadow: 0 0 5px rgba(139, 92, 246, 0.2) !important;
+}
+
+/* Enhanced hover effect with brighter glow */
+button:hover, .btn:hover, [role="button"]:hover {
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.7) !important;
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Special glow effect for primary buttons */
+.btn-primary, button.primary, [data-variant="primary"] {
+  text-shadow: 0 0 8px rgba(139, 92, 246, 0.3) !important;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.3) !important;
+}
+
+/* Enhanced hover effect for primary buttons */
+.btn-primary:hover, button.primary:hover, [data-variant="primary"]:hover {
+  text-shadow: 0 0 12px rgba(139, 92, 246, 0.8) !important;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.6) !important;
+}
+
+/* Special animated glow effect for Kids Zone buttons */
+.kids-zone-btn {
+  position: relative;
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradient-shift 3s ease infinite;
+  color: white;
+  font-weight: bold;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(92, 92, 246, 0.4);
+  border: none;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.kids-zone-btn::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  transform: rotate(30deg);
+  transition: all 0.7s ease;
+}
+
+.kids-zone-btn:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.7) !important;
+}
+
+.kids-zone-btn:hover::after {
+  transform: rotate(30deg) translate(10%, 10%);
+}
+
+/* Animation for the gradient shift */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Make all gradient text glow on hover */
+.gradient-text:hover {
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.6);
 }
 
 /* Make background patterns more visible */
