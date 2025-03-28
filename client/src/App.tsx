@@ -11,6 +11,7 @@ import ProjectDetail from "@/pages/ProjectDetail";
 import KnowledgeCommons from "@/pages/KnowledgeCommons";
 import Rewards from "@/pages/Rewards";
 import KidsZone from "@/pages/KidsZone";
+import Governance from "@/pages/Governance";
 import AuthPage from "@/pages/auth-page"; 
 import AppLayout from "@/components/layout/AppLayout";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
@@ -28,6 +29,7 @@ function Router() {
       <ProtectedRoute path="/knowledge" component={KnowledgeCommons} />
       <ProtectedRoute path="/rewards" component={Rewards} />
       <ProtectedRoute path="/kids" component={KidsZone} />
+      <ProtectedRoute path="/governance" component={Governance} />
       <Route component={NotFound} />
     </Switch>
   );
