@@ -225,3 +225,66 @@ export type InsertUserLearningProgress = z.infer<typeof insertUserLearningProgre
 
 export type LearningPathSkill = typeof learningPathSkills.$inferSelect;
 export type InsertLearningPathSkill = z.infer<typeof insertLearningPathSkillSchema>;
+
+// Governance schema
+export const governanceProposals = pgTable("governance_proposals", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  creatorId: integer("creator_id").notNull().references(() => users.id),
+  projectId: integer("project_id").references(() => projects.id), // Optional, for project-specific proposals
+  type: text("type").notNull(), // project, platform, funding, policy, etc.
+  status: text("status").notNull().default("open"), // open, approved, rejected, implemented
+  votingEndDate: timestamp("voting_end_date").notNull(),
+  threshold: integer("threshold").default(50), // Percentage needed to pass (default: simple majority)
+  options: text("options").array().notNull(), // Voting options (yes/no or multiple choices)
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertGovernanceProposalSchema = createInsertSchema(governanceProposals).omit({
+  id: true,
+  status: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const governanceVotes = pgTable("governance_votes", {
+  id: serial("id").primaryKey(),
+  proposalId: integer("proposal_id").notNull().references(() => governanceProposals.id),
+  userId: integer("user_id").notNull().references(() => users.id),
+  vote: text("vote").notNull(), // The selected option
+  weight: integer("weight").default(1), // Vote weight (based on reputation or contribution)
+  reason: text("reason"), // Optional reason for the vote
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertGovernanceVoteSchema = createInsertSchema(governanceVotes).omit({
+  id: true,
+  weight: true,
+  createdAt: true,
+});
+
+export const governanceComments = pgTable("governance_comments", {
+  id: serial("id").primaryKey(),
+  proposalId: integer("proposal_id").notNull().references(() => governanceProposals.id),
+  userId: integer("user_id").notNull().references(() => users.id),
+  content: text("content").notNull(),
+  parentId: integer("parent_id"), // For reply threads
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertGovernanceCommentSchema = createInsertSchema(governanceComments).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Export governance types
+export type GovernanceProposal = typeof governanceProposals.$inferSelect;
+export type InsertGovernanceProposal = z.infer<typeof insertGovernanceProposalSchema>;
+
+export type GovernanceVote = typeof governanceVotes.$inferSelect;
+export type InsertGovernanceVote = z.infer<typeof insertGovernanceVoteSchema>;
+
+export type GovernanceComment = typeof governanceComments.$inferSelect;
+export type InsertGovernanceComment = z.infer<typeof insertGovernanceCommentSchema>;

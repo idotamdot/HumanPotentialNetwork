@@ -10,7 +10,10 @@ import {
   insertLearningPathSchema,
   insertLearningModuleSchema,
   insertUserLearningProgressSchema,
-  insertLearningPathSkillSchema
+  insertLearningPathSkillSchema,
+  insertGovernanceProposalSchema,
+  insertGovernanceVoteSchema,
+  insertGovernanceCommentSchema
 } from "@shared/schema";
 import { setupAuth } from "./auth";
 import { RecommendationService } from "./services/recommendation";
@@ -486,6 +489,207 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid learning path skill data", errors: error.errors });
       }
       res.status(500).json({ message: "Failed to create learning path skill" });
+    }
+  });
+  
+  // Governance Proposal Routes
+  app.get("/api/governance/proposals", async (req, res) => {
+    try {
+      const proposals = await storage.getAllProposals();
+      res.json(proposals);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get governance proposals" });
+    }
+  });
+  
+  app.get("/api/governance/proposals/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid proposal ID" });
+    }
+    
+    try {
+      const proposal = await storage.getProposal(id);
+      if (!proposal) {
+        return res.status(404).json({ message: "Proposal not found" });
+      }
+      
+      res.json(proposal);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get proposal" });
+    }
+  });
+  
+  app.get("/api/projects/:projectId/proposals", async (req, res) => {
+    const projectId = parseInt(req.params.projectId);
+    if (isNaN(projectId)) {
+      return res.status(400).json({ message: "Invalid project ID" });
+    }
+    
+    try {
+      const proposals = await storage.getProjectProposals(projectId);
+      res.json(proposals);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get project proposals" });
+    }
+  });
+  
+  app.get("/api/users/:userId/proposals", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    
+    try {
+      const proposals = await storage.getUserProposals(userId);
+      res.json(proposals);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user proposals" });
+    }
+  });
+  
+  app.post("/api/governance/proposals", async (req, res) => {
+    try {
+      const proposalData = insertGovernanceProposalSchema.parse(req.body);
+      const proposal = await storage.createProposal(proposalData);
+      res.status(201).json(proposal);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid proposal data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create proposal" });
+    }
+  });
+  
+  app.patch("/api/governance/proposals/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid proposal ID" });
+    }
+    
+    try {
+      const updatedProposal = await storage.updateProposal(id, req.body);
+      if (!updatedProposal) {
+        return res.status(404).json({ message: "Proposal not found" });
+      }
+      
+      res.json(updatedProposal);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update proposal" });
+    }
+  });
+  
+  // Governance Vote Routes
+  app.get("/api/governance/proposals/:proposalId/votes", async (req, res) => {
+    const proposalId = parseInt(req.params.proposalId);
+    if (isNaN(proposalId)) {
+      return res.status(400).json({ message: "Invalid proposal ID" });
+    }
+    
+    try {
+      const votes = await storage.getProposalVotes(proposalId);
+      res.json(votes);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get proposal votes" });
+    }
+  });
+  
+  app.get("/api/governance/proposals/:proposalId/users/:userId/vote", async (req, res) => {
+    const proposalId = parseInt(req.params.proposalId);
+    const userId = parseInt(req.params.userId);
+    
+    if (isNaN(proposalId) || isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid proposal or user ID" });
+    }
+    
+    try {
+      const vote = await storage.getUserVote(userId, proposalId);
+      if (!vote) {
+        return res.status(404).json({ message: "Vote not found" });
+      }
+      
+      res.json(vote);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user vote" });
+    }
+  });
+  
+  app.post("/api/governance/votes", async (req, res) => {
+    try {
+      const voteData = insertGovernanceVoteSchema.parse(req.body);
+      const vote = await storage.createVote(voteData);
+      res.status(201).json(vote);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid vote data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create vote" });
+    }
+  });
+  
+  app.delete("/api/governance/proposals/:proposalId/users/:userId/vote", async (req, res) => {
+    const proposalId = parseInt(req.params.proposalId);
+    const userId = parseInt(req.params.userId);
+    
+    if (isNaN(proposalId) || isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid proposal or user ID" });
+    }
+    
+    try {
+      const success = await storage.deleteVote(userId, proposalId);
+      if (!success) {
+        return res.status(404).json({ message: "Vote not found" });
+      }
+      
+      res.status(204).end();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete vote" });
+    }
+  });
+  
+  // Governance Comment Routes
+  app.get("/api/governance/proposals/:proposalId/comments", async (req, res) => {
+    const proposalId = parseInt(req.params.proposalId);
+    if (isNaN(proposalId)) {
+      return res.status(400).json({ message: "Invalid proposal ID" });
+    }
+    
+    try {
+      const comments = await storage.getProposalComments(proposalId);
+      res.json(comments);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get proposal comments" });
+    }
+  });
+  
+  app.post("/api/governance/comments", async (req, res) => {
+    try {
+      const commentData = insertGovernanceCommentSchema.parse(req.body);
+      const comment = await storage.createComment(commentData);
+      res.status(201).json(comment);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid comment data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create comment" });
+    }
+  });
+  
+  app.delete("/api/governance/comments/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid comment ID" });
+    }
+    
+    try {
+      const success = await storage.deleteComment(id);
+      if (!success) {
+        return res.status(404).json({ message: "Comment not found" });
+      }
+      
+      res.status(204).end();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete comment" });
     }
   });
   

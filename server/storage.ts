@@ -9,7 +9,10 @@ import {
   learningPaths, LearningPath, InsertLearningPath,
   learningModules, LearningModule, InsertLearningModule,
   userLearningProgress, UserLearningProgress, InsertUserLearningProgress,
-  learningPathSkills, LearningPathSkill, InsertLearningPathSkill
+  learningPathSkills, LearningPathSkill, InsertLearningPathSkill,
+  governanceProposals, GovernanceProposal, InsertGovernanceProposal,
+  governanceVotes, GovernanceVote, InsertGovernanceVote,
+  governanceComments, GovernanceComment, InsertGovernanceComment
 } from "@shared/schema";
 
 export interface IStorage {
@@ -77,6 +80,26 @@ export interface IStorage {
   getLearningPathSkills(pathId: number): Promise<LearningPathSkill[]>;
   createLearningPathSkill(skill: InsertLearningPathSkill): Promise<LearningPathSkill>;
   deleteLearningPathSkill(id: number): Promise<boolean>;
+  
+  // Governance Proposal methods
+  getAllProposals(): Promise<GovernanceProposal[]>;
+  getProposal(id: number): Promise<GovernanceProposal | undefined>;
+  getProjectProposals(projectId: number): Promise<GovernanceProposal[]>;
+  getUserProposals(userId: number): Promise<GovernanceProposal[]>;
+  createProposal(proposal: InsertGovernanceProposal): Promise<GovernanceProposal>;
+  updateProposal(id: number, data: Partial<GovernanceProposal>): Promise<GovernanceProposal | undefined>;
+  
+  // Governance Vote methods
+  getProposalVotes(proposalId: number): Promise<{vote: GovernanceVote, user: User}[]>;
+  getUserVote(userId: number, proposalId: number): Promise<GovernanceVote | undefined>;
+  createVote(vote: InsertGovernanceVote): Promise<GovernanceVote>;
+  deleteVote(userId: number, proposalId: number): Promise<boolean>;
+  
+  // Governance Comment methods
+  getProposalComments(proposalId: number): Promise<{comment: GovernanceComment, user: User}[]>;
+  getComment(id: number): Promise<GovernanceComment | undefined>;
+  createComment(comment: InsertGovernanceComment): Promise<GovernanceComment>;
+  deleteComment(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -91,6 +114,9 @@ export class MemStorage implements IStorage {
   private learningModules: Map<number, LearningModule>;
   private userLearningProgress: Map<number, UserLearningProgress>;
   private learningPathSkills: Map<number, LearningPathSkill>;
+  private governanceProposals: Map<number, GovernanceProposal>;
+  private governanceVotes: Map<number, GovernanceVote>;
+  private governanceComments: Map<number, GovernanceComment>;
   
   private nextIds: {
     users: number;
@@ -104,6 +130,9 @@ export class MemStorage implements IStorage {
     learningModules: number;
     userLearningProgress: number;
     learningPathSkills: number;
+    governanceProposals: number;
+    governanceVotes: number;
+    governanceComments: number;
   };
 
   constructor() {
@@ -118,6 +147,9 @@ export class MemStorage implements IStorage {
     this.learningModules = new Map();
     this.userLearningProgress = new Map();
     this.learningPathSkills = new Map();
+    this.governanceProposals = new Map();
+    this.governanceVotes = new Map();
+    this.governanceComments = new Map();
     
     this.nextIds = {
       users: 1,
@@ -131,6 +163,9 @@ export class MemStorage implements IStorage {
       learningModules: 1,
       userLearningProgress: 1,
       learningPathSkills: 1,
+      governanceProposals: 1,
+      governanceVotes: 1,
+      governanceComments: 1,
     };
     
     // Initialize with some data
@@ -511,6 +546,196 @@ export class MemStorage implements IStorage {
   async deleteLearningPathSkill(id: number): Promise<boolean> {
     return this.learningPathSkills.delete(id);
   }
+  
+  // Governance Proposal methods
+  async getAllProposals(): Promise<GovernanceProposal[]> {
+    return Array.from(this.governanceProposals.values());
+  }
+  
+  async getProposal(id: number): Promise<GovernanceProposal | undefined> {
+    return this.governanceProposals.get(id);
+  }
+  
+  async getProjectProposals(projectId: number): Promise<GovernanceProposal[]> {
+    return Array.from(this.governanceProposals.values()).filter(
+      (proposal) => proposal.projectId === projectId
+    );
+  }
+  
+  async getUserProposals(userId: number): Promise<GovernanceProposal[]> {
+    return Array.from(this.governanceProposals.values()).filter(
+      (proposal) => proposal.creatorId === userId
+    );
+  }
+  
+  async createProposal(insertProposal: InsertGovernanceProposal): Promise<GovernanceProposal> {
+    const id = this.nextIds.governanceProposals++;
+    const proposal: GovernanceProposal = {
+      ...insertProposal,
+      id,
+      status: "open",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.governanceProposals.set(id, proposal);
+    return proposal;
+  }
+  
+  async updateProposal(id: number, data: Partial<GovernanceProposal>): Promise<GovernanceProposal | undefined> {
+    const proposal = await this.getProposal(id);
+    if (!proposal) return undefined;
+    
+    const updatedProposal = {
+      ...proposal,
+      ...data,
+      updatedAt: new Date()
+    };
+    this.governanceProposals.set(id, updatedProposal);
+    return updatedProposal;
+  }
+  
+  // Governance Vote methods
+  async getProposalVotes(proposalId: number): Promise<{ vote: GovernanceVote, user: User }[]> {
+    const votes = Array.from(this.governanceVotes.values()).filter(
+      (vote) => vote.proposalId === proposalId
+    );
+    
+    return Promise.all(votes.map(async (vote) => {
+      const user = await this.getUser(vote.userId);
+      if (!user) throw new Error(`User not found for id: ${vote.userId}`);
+      return { vote, user };
+    }));
+  }
+  
+  async getUserVote(userId: number, proposalId: number): Promise<GovernanceVote | undefined> {
+    return Array.from(this.governanceVotes.values()).find(
+      (vote) => vote.userId === userId && vote.proposalId === proposalId
+    );
+  }
+  
+  async createVote(insertVote: InsertGovernanceVote): Promise<GovernanceVote> {
+    // Check if user already voted
+    const existingVote = await this.getUserVote(insertVote.userId, insertVote.proposalId);
+    if (existingVote) {
+      // Delete existing vote
+      await this.deleteVote(insertVote.userId, insertVote.proposalId);
+    }
+    
+    const id = this.nextIds.governanceVotes++;
+    const vote: GovernanceVote = {
+      ...insertVote,
+      id,
+      weight: 1, // Default weight value
+      createdAt: new Date()
+    };
+    
+    this.governanceVotes.set(id, vote);
+    
+    // Update proposal status if voting is over and threshold is met
+    await this.checkProposalStatus(insertVote.proposalId);
+    
+    return vote;
+  }
+  
+  async deleteVote(userId: number, proposalId: number): Promise<boolean> {
+    const vote = Array.from(this.governanceVotes.values()).find(
+      (v) => v.userId === userId && v.proposalId === proposalId
+    );
+    
+    if (!vote) return false;
+    
+    const result = this.governanceVotes.delete(vote.id);
+    
+    // Update proposal status after vote removal
+    if (result) {
+      await this.checkProposalStatus(proposalId);
+    }
+    
+    return result;
+  }
+  
+  // Governance Comment methods
+  async getProposalComments(proposalId: number): Promise<{ comment: GovernanceComment, user: User }[]> {
+    const comments = Array.from(this.governanceComments.values()).filter(
+      (comment) => comment.proposalId === proposalId
+    );
+    
+    return Promise.all(comments.map(async (comment) => {
+      const user = await this.getUser(comment.userId);
+      if (!user) throw new Error(`User not found for id: ${comment.userId}`);
+      return { comment, user };
+    }));
+  }
+  
+  async getComment(id: number): Promise<GovernanceComment | undefined> {
+    return this.governanceComments.get(id);
+  }
+  
+  async createComment(insertComment: InsertGovernanceComment): Promise<GovernanceComment> {
+    const id = this.nextIds.governanceComments++;
+    const comment: GovernanceComment = {
+      ...insertComment,
+      id,
+      createdAt: new Date()
+    };
+    this.governanceComments.set(id, comment);
+    return comment;
+  }
+  
+  async deleteComment(id: number): Promise<boolean> {
+    return this.governanceComments.delete(id);
+  }
+  
+  // Helper method to check proposal status
+  private async checkProposalStatus(proposalId: number): Promise<void> {
+    const proposal = await this.getProposal(proposalId);
+    if (!proposal) return;
+    
+    // If proposal is not open, don't update status
+    if (proposal.status !== "open") return;
+    
+    const votes = Array.from(this.governanceVotes.values()).filter(
+      (vote) => vote.proposalId === proposalId
+    );
+    
+    // If proposal end date is in the future, don't update status
+    if (new Date(proposal.votingEndDate) > new Date()) return;
+    
+    // Count votes for each option
+    const voteCounts: Record<string, number> = {};
+    let totalVotes = 0;
+    
+    votes.forEach(vote => {
+      const weight = vote.weight || 1;
+      voteCounts[vote.vote] = (voteCounts[vote.vote] || 0) + weight;
+      totalVotes += weight;
+    });
+    
+    // No votes? Keep it open
+    if (totalVotes === 0) return;
+    
+    // Find the winning option
+    let winningOption = "";
+    let winningVotes = 0;
+    
+    for (const [option, count] of Object.entries(voteCounts)) {
+      if (count > winningVotes) {
+        winningOption = option;
+        winningVotes = count;
+      }
+    }
+    
+    // Calculate percentage of votes for the winning option
+    const winPercentage = (winningVotes / totalVotes) * 100;
+    
+    // If winning option met threshold, approve the proposal
+    if (winPercentage >= proposal.threshold) {
+      await this.updateProposal(proposalId, { status: "approved" });
+    } else {
+      // Otherwise, reject it
+      await this.updateProposal(proposalId, { status: "rejected" });
+    }
+  }
 
   // Initialize with sample data
   private async initData() {
@@ -763,6 +988,63 @@ export class MemStorage implements IStorage {
       impactType: "collective",
       amount: 2000,
       description: "Provided clean water access to 1,500 people"
+    });
+    
+    // Create sample governance proposals
+    const fundingProposal = await this.createProposal({
+      title: "Increase Project Funding",
+      description: "Proposal to increase funding for the Digital Literacy Program by 20% to expand to more community centers.",
+      creatorId: user.id,
+      projectId: digitalLiteracy.id,
+      type: "funding",
+      votingEndDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 week from now
+      threshold: 60, // 60% required to pass
+      options: ["Yes", "No"]
+    });
+    
+    const policyProposal = await this.createProposal({
+      title: "New Volunteer Guidelines",
+      description: "Proposal to establish new guidelines for volunteer onboarding to ensure quality and commitment for all projects.",
+      creatorId: user.id,
+      projectId: null, // Platform-wide policy
+      type: "policy",
+      votingEndDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 2 weeks from now
+      threshold: 50, // Simple majority
+      options: ["Approve", "Reject", "Modify"]
+    });
+    
+    const featureProposal = await this.createProposal({
+      title: "Add Skill Certificates",
+      description: "Proposal to add digital certificates that users can earn upon completing projects and verifying skills.",
+      creatorId: user.id,
+      projectId: null, // Platform-wide feature
+      type: "platform",
+      votingEndDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10 days from now
+      threshold: 70, // 70% required to pass
+      options: ["Implement", "Reject", "Consider Later"]
+    });
+    
+    // Add some votes to the proposals
+    await this.createVote({
+      proposalId: fundingProposal.id,
+      userId: user.id,
+      vote: "Yes",
+      reason: "This will help us reach more seniors who need digital literacy training."
+    });
+    
+    // Add comments to proposals
+    await this.createComment({
+      proposalId: fundingProposal.id,
+      userId: user.id,
+      content: "I've been volunteering with the Digital Literacy Program for 6 months and can attest to the positive impact it has. We definitely need more funding to expand our reach.",
+      parentId: null
+    });
+    
+    await this.createComment({
+      proposalId: policyProposal.id,
+      userId: user.id,
+      content: "I've noticed inconsistencies in the volunteer onboarding process across different projects. Standardizing guidelines would be helpful.",
+      parentId: null
     });
     
     // Create sample learning paths
