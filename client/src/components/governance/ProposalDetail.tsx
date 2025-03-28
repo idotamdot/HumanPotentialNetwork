@@ -75,15 +75,6 @@ const ProposalDetail = ({ proposalId, isOpen, onClose }: ProposalDetailProps) =>
   const { data: userVote } = useQuery<GovernanceVote>({
     queryKey: ["/api/governance/proposals", proposalId, "users", user?.id, "vote"],
     enabled: isOpen && proposalId > 0 && !!user,
-    onSuccess: (data: GovernanceVote) => {
-      if (data) {
-        setSelectedOption(data.vote);
-        setVoteReason(data.reason || "");
-      }
-    },
-    onError: () => {
-      // If 404, it means user hasn't voted yet, which is fine
-    }
   });
 
   // Submit vote mutation
@@ -158,7 +149,7 @@ const ProposalDetail = ({ proposalId, isOpen, onClose }: ProposalDetailProps) =>
 
   // Calculate vote statistics
   const calculateVoteStats = () => {
-    if (!votesData || votesData.length === 0) {
+    if (!votesData || votesData.length === 0 || !proposal) {
       return {
         totalVotes: 0,
         votesByOption: {}
@@ -168,12 +159,16 @@ const ProposalDetail = ({ proposalId, isOpen, onClose }: ProposalDetailProps) =>
     // Count votes by option
     const votesByOption: Record<string, { count: number, percentage: number }> = {};
     
-    proposal?.options.forEach(option => {
-      votesByOption[option] = { count: 0, percentage: 0 };
-    });
+    // Make sure proposal exists and has options
+    if (proposal.options && Array.isArray(proposal.options)) {
+      proposal.options.forEach(option => {
+        votesByOption[option] = { count: 0, percentage: 0 };
+      });
+    }
 
+    // Count votes
     votesData.forEach(({ vote }) => {
-      if (votesByOption[vote.vote]) {
+      if (vote && vote.vote && votesByOption[vote.vote]) {
         votesByOption[vote.vote].count += 1;
       }
     });
@@ -191,6 +186,14 @@ const ProposalDetail = ({ proposalId, isOpen, onClose }: ProposalDetailProps) =>
       votesByOption
     };
   };
+
+  // Update the selected option and reason when userVote changes
+  React.useEffect(() => {
+    if (userVote) {
+      setSelectedOption(userVote.vote);
+      setVoteReason(userVote.reason || "");
+    }
+  }, [userVote]);
 
   const voteStats = calculateVoteStats();
   const isLoading = loadingProposal || loadingVotes || loadingComments;
