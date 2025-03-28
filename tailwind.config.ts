@@ -86,5 +86,25 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+  plugins: [
+    require("tailwindcss-animate"), 
+    require("@tailwindcss/typography"),
+    function({ addUtilities }) {
+      addUtilities({
+        ".no-scrollbar": {
+          "-ms-overflow-style": "none",
+          "scrollbar-width": "none",
+          "&::-webkit-scrollbar": {
+            display: "none",
+          },
+        },
+        '.touch-action-pan-y': {
+          'touch-action': 'pan-y',
+        },
+        '.touch-action-pan-x': {
+          'touch-action': 'pan-x',
+        },
+      })
+    }
+  ],
 } satisfies Config;

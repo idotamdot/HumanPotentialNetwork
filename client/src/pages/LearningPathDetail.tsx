@@ -13,7 +13,8 @@ import {
   Code, 
   ExternalLink,
   Download,
-  Printer
+  Printer,
+  X
 } from "lucide-react";
 import {
   Card,
@@ -39,7 +40,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { LearningPath, LearningModule, UserLearningProgress, InsertUserLearningProgress } from "@shared/schema";
-import Certificate from "@/components/learning/Certificate";
+import Certificate from "../components/learning/Certificate";
 
 export default function LearningPathDetail() {
   const { user } = useAuth();
@@ -239,15 +240,15 @@ export default function LearningPathDetail() {
   }
 
   return (
-    <div className="py-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+    <div className="py-4 md:py-6">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 md:px-8">
         {/* Back Button */}
         <Button 
           variant="ghost" 
-          className="mb-4 flex items-center"
+          className="mb-3 md:mb-4 flex items-center text-sm md:text-base"
           onClick={() => navigate("/learning-paths")}
         >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Learning Paths
+          <ArrowLeft className="mr-1 md:mr-2 h-4 w-4" /> Back to Learning Paths
         </Button>
 
         {isLoading ? (
@@ -260,23 +261,41 @@ export default function LearningPathDetail() {
           </div>
         ) : (
           <>
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row gap-6 mb-8">
+            {/* Header Section - Mobile Optimized */}
+            <div className="flex flex-col md:flex-row gap-4 md:gap-6 mb-6 md:mb-8">
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-3">
-                  <Badge>{learningPath.category}</Badge>
-                  <Badge variant="outline">{learningPath.difficulty}</Badge>
+                {/* Category and Difficulty Badges */}
+                <div className="flex items-center gap-2 mb-2 md:mb-3 overflow-x-auto pb-1 md:pb-0 no-scrollbar">
+                  <Badge className="whitespace-nowrap">{learningPath.category}</Badge>
+                  <Badge variant="outline" className="whitespace-nowrap">{learningPath.difficulty}</Badge>
+                  
+                  {/* Move Timing Info to Top Row on Mobile */}
+                  <div className="ml-auto flex items-center md:hidden text-xs whitespace-nowrap">
+                    <Clock className="h-3.5 w-3.5 mr-1 text-muted-foreground shrink-0" />
+                    <span className="text-muted-foreground">{learningPath.estimatedHours}h</span>
+                    <span className="mx-1 text-muted-foreground">•</span>
+                    <BookOpen className="h-3.5 w-3.5 mr-1 text-muted-foreground shrink-0" />
+                    <span className="text-muted-foreground">{modules?.length || 0} modules</span>
+                  </div>
                 </div>
-                <h1 className="text-3xl font-bold mb-2">{learningPath.title}</h1>
-                <p className="text-muted-foreground mb-4">
+                
+                {/* Title */}
+                <h1 className="text-2xl md:text-3xl font-bold mb-2">{learningPath.title}</h1>
+                
+                {/* Description - Shorter on Mobile */}
+                <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4 line-clamp-2 md:line-clamp-none">
                   {learningPath.description}
                 </p>
-                <div className="flex flex-wrap gap-1.5 mb-4">
+                
+                {/* Tags - Scrollable on Mobile */}
+                <div className="flex gap-1.5 mb-3 md:mb-4 overflow-x-auto pb-1 md:pb-0 no-scrollbar md:flex-wrap">
                   {learningPath.tags.map(tag => (
-                    <Badge key={tag} variant="secondary">{tag}</Badge>
+                    <Badge key={tag} variant="secondary" className="whitespace-nowrap text-xs md:text-sm">{tag}</Badge>
                   ))}
                 </div>
-                <div className="flex flex-col xs:flex-row gap-3 sm:gap-6">
+                
+                {/* Time Info - Hidden on Mobile (shown above), Visible on Desktop */}
+                <div className="hidden md:flex flex-col xs:flex-row gap-3 sm:gap-6">
                   <div className="flex items-center">
                     <Clock className="h-5 w-5 mr-2 text-muted-foreground" />
                     <span>{learningPath.estimatedHours} hours total</span>
@@ -288,51 +307,52 @@ export default function LearningPathDetail() {
                 </div>
               </div>
 
-              {/* Enrollment Card */}
+              {/* Enrollment Card - Mobile Friendly Version */}
               <div className="md:w-72 shrink-0">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle>
+                <Card className="shadow-sm md:shadow">
+                  <CardHeader className="pb-2 md:pb-3 pt-3 md:pt-4 px-3 md:px-4">
+                    <CardTitle className="text-base md:text-lg">
                       {isEnrolled 
                         ? isCompleted 
-                          ? "Path Completed!" 
+                          ? "Path Completed! 🏆" 
                           : "Your Progress"
                         : "Start Learning"}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="px-3 md:px-4 py-2 md:py-3">
                     {isEnrolled ? (
                       <div className="space-y-3">
                         <div className="flex justify-between items-center text-sm">
                           <span>Overall progress</span>
-                          <span>{userProgress?.progress || 0}%</span>
+                          <span className="font-medium">{userProgress?.progress || 0}%</span>
                         </div>
-                        <Progress value={userProgress?.progress || 0} className="h-2" />
+                        <Progress value={userProgress?.progress || 0} className="h-2 md:h-2.5" />
                         
                         {isCompleted && (
-                          <div className="mt-4 flex flex-col gap-2">
+                          <div className="mt-3 md:mt-4 flex flex-col gap-2">
                             <Badge className="w-fit mx-auto mb-1 bg-gradient-to-r from-amber-400 to-amber-600">
                               <Award className="h-4 w-4 mr-1" /> Completed
                             </Badge>
                             <Button 
-                              className="w-full"
+                              className="w-full text-sm md:text-base"
                               variant="outline"
                               onClick={() => setShowCertificate(true)}
                             >
-                              <Award className="h-4 w-4 mr-2" /> View Certificate
+                              <Award className="h-4 w-4 mr-1 md:mr-2" /> View Certificate
                             </Button>
                           </div>
                         )}
                       </div>
                     ) : (
-                      <div className="space-y-4">
-                        <p className="text-sm text-muted-foreground">
-                          Enroll in this learning path to track your progress and receive a certificate upon completion.
+                      <div className="space-y-3 md:space-y-4">
+                        <p className="text-xs md:text-sm text-muted-foreground">
+                          Enroll to track progress and receive a certificate upon completion.
                         </p>
                         <Button 
-                          className="w-full bg-gradient-to-r from-purple-600 to-blue-600"
+                          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-sm md:text-base"
                           onClick={handleEnroll}
                           disabled={!user || enrollMutation.isPending}
+                          size="sm"
                         >
                           {!user ? "Sign in to Enroll" : "Enroll Now"}
                         </Button>
@@ -343,13 +363,28 @@ export default function LearningPathDetail() {
               </div>
             </div>
 
-            {/* Main Content Tabs */}
+            {/* Main Content Tabs - Touch Friendly */}
             <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
-              <TabsList>
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="modules">Modules</TabsTrigger>
+              <TabsList className="w-full grid grid-cols-2 md:w-auto md:flex">
+                <TabsTrigger 
+                  value="overview"
+                  className="text-sm md:text-base h-11 md:h-10 rounded-md data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600/90 data-[state=active]:to-blue-600/90 data-[state=active]:text-white"
+                >
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="modules" 
+                  className="text-sm md:text-base h-11 md:h-10 rounded-md data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600/90 data-[state=active]:to-blue-600/90 data-[state=active]:text-white"
+                >
+                  Modules
+                </TabsTrigger>
                 {isEnrolled && isCompleted && (
-                  <TabsTrigger value="certificate">Certificate</TabsTrigger>
+                  <TabsTrigger 
+                    value="certificate" 
+                    className="text-sm md:text-base h-11 md:h-10 rounded-md data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600/90 data-[state=active]:to-blue-600/90 data-[state=active]:text-white col-span-2 md:col-span-1"
+                  >
+                    Certificate
+                  </TabsTrigger>
                 )}
               </TabsList>
               
@@ -413,39 +448,49 @@ export default function LearningPathDetail() {
                     </p>
                   </div>
                   
-                  <Accordion type="single" collapsible className="w-full">
+                  <Accordion type="single" collapsible className="w-full touch-action-pan-y">
                     {modules?.map((module, index) => {
                       const completed = isModuleCompleted(module.id);
                       
                       return (
-                        <AccordionItem key={module.id} value={`module-${module.id}`}>
-                          <AccordionTrigger className="hover:no-underline">
-                            <div className="flex items-center gap-3 text-left">
-                              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs font-medium">
+                        <AccordionItem 
+                          key={module.id} 
+                          value={`module-${module.id}`}
+                          className="border rounded-md mb-3 overflow-hidden shadow-sm"
+                        >
+                          <AccordionTrigger className="hover:no-underline px-3 py-3 md:px-4 md:py-3 bg-accent/10 hover:bg-accent/20 active:bg-accent/30 transition-colors">
+                            <div className="flex items-center gap-2 md:gap-3 text-left w-full pr-5">
+                              <div className={`flex items-center justify-center w-7 h-7 rounded-full ${completed ? 'bg-green-100 dark:bg-green-900' : 'bg-muted'} text-xs font-medium shrink-0`}>
                                 {completed ? (
-                                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                  <CheckCircle2 className="h-4 w-4 text-green-500" />
                                 ) : (
-                                  (index + 1)
+                                  <span className="text-sm">{index + 1}</span>
                                 )}
                               </div>
-                              <div>
-                                <h3 className="font-medium">{module.title}</h3>
-                                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                                  <span className="flex items-center">
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-medium text-sm md:text-base truncate">{module.title}</h3>
+                                <div className="flex flex-wrap items-center gap-2 md:gap-3 text-xs md:text-sm text-muted-foreground mt-0.5">
+                                  <span className="flex items-center whitespace-nowrap">
                                     {renderModuleIcon(module.type)} 
                                     <span className="ml-1">{module.type}</span>
                                   </span>
-                                  <span className="flex items-center">
+                                  <span className="flex items-center whitespace-nowrap">
                                     <Clock className="h-3 w-3 mr-1" /> 
                                     {module.duration} min
                                   </span>
+                                  {completed && (
+                                    <span className="flex items-center whitespace-nowrap text-green-600 dark:text-green-500">
+                                      <CheckCircle2 className="h-3 w-3 mr-1" /> 
+                                      Completed
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             </div>
                           </AccordionTrigger>
-                          <AccordionContent>
-                            <div className="pl-9 space-y-4">
-                              <p className="text-muted-foreground">{module.description}</p>
+                          <AccordionContent className="bg-white dark:bg-slate-950">
+                            <div className="px-3 py-4 md:px-4 md:pl-12 space-y-4">
+                              <p className="text-sm text-muted-foreground">{module.description}</p>
                               
                               <div className="flex flex-wrap gap-2">
                                 <a 
@@ -454,21 +499,20 @@ export default function LearningPathDetail() {
                                   rel="noopener noreferrer"
                                   className="inline-flex"
                                 >
-                                  <Button variant="outline" size="sm" className="gap-1">
+                                  <Button variant="outline" size="sm" className="gap-1 h-9 text-sm">
                                     <ExternalLink className="h-4 w-4" />
-                                    Open Content
+                                    <span className="md:inline">Open Content</span>
                                   </Button>
                                 </a>
                                 
-                                {isEnrolled && (
+                                {isEnrolled && !completed && (
                                   <Button 
                                     size="sm"
-                                    variant={completed ? "outline" : "default"}
-                                    className={completed ? "gap-1" : "gap-1 bg-gradient-to-r from-green-600 to-teal-600"}
+                                    className="gap-1 bg-gradient-to-r from-green-600 to-teal-600 h-9 text-sm"
                                     onClick={() => markModuleCompleted(module.id)}
                                   >
                                     <CheckCircle2 className="h-4 w-4" />
-                                    {completed ? "Completed" : "Mark as Completed"}
+                                    <span className="md:inline">Mark Complete</span>
                                   </Button>
                                 )}
                               </div>
@@ -481,43 +525,59 @@ export default function LearningPathDetail() {
                 </div>
               </TabsContent>
               
-              {/* Certificate Tab */}
+              {/* Certificate Tab - Mobile Optimized */}
               {isCompleted && (
                 <TabsContent value="certificate" className="mt-6">
-                  <div className="space-y-6">
+                  <div className="space-y-5 md:space-y-6">
                     <div>
-                      <h2 className="text-xl font-semibold mb-2">Your Certificate of Completion</h2>
-                      <p className="text-muted-foreground">
-                        Congratulations on completing the learning path! You can download or print your certificate below.
+                      <h2 className="text-lg md:text-xl font-semibold mb-2">Your Certificate of Completion</h2>
+                      <p className="text-sm md:text-base text-muted-foreground">
+                        Congratulations on completing this learning path! You can download or print your certificate.
                       </p>
                     </div>
                     
-                    <div className="border rounded-lg p-4 flex flex-col items-center">
-                      <div className="mb-6 max-w-3xl mx-auto" ref={certificateRef}>
-                        <Certificate 
-                          userName={user?.name || ""}
-                          courseName={learningPath.title}
-                          issueDate={format(new Date(), "MMMM dd, yyyy")}
-                        />
+                    <div className="border rounded-lg p-3 md:p-4 flex flex-col items-center shadow-sm">
+                      {/* Certificate - Pinch to zoom enabled on mobile */}
+                      <div 
+                        className="mb-4 md:mb-6 max-w-full overflow-auto touch-action-pan-y touch-pan-zoom" 
+                        ref={certificateRef}
+                        style={{
+                          maxWidth: "100%",
+                          overscrollBehavior: "contain"
+                        }}
+                      >
+                        <div className="min-w-[280px] md:min-w-0">
+                          <Certificate 
+                            userName={user?.name || ""}
+                            courseName={learningPath.title}
+                            issueDate={format(new Date(), "MMMM dd, yyyy")}
+                          />
+                        </div>
                       </div>
                       
-                      <div className="flex gap-3 mt-4">
+                      {/* Action Buttons - Responsive */}
+                      <div className="flex flex-wrap md:flex-nowrap w-full gap-2 md:gap-3 mt-2 md:mt-4 justify-center">
                         <Button 
                           variant="outline" 
-                          className="gap-2"
+                          className="gap-1 text-sm md:gap-2 md:text-base flex-1"
                           onClick={printCertificate}
                         >
                           <Printer className="h-4 w-4" />
-                          Print Certificate
+                          <span className="whitespace-nowrap">Print</span>
                         </Button>
                         <Button 
-                          className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600"
+                          className="gap-1 text-sm md:gap-2 md:text-base bg-gradient-to-r from-purple-600 to-blue-600 flex-1"
                           onClick={downloadCertificateAsPDF}
                         >
                           <Download className="h-4 w-4" />
-                          Download Certificate
+                          <span className="whitespace-nowrap">Download</span>
                         </Button>
                       </div>
+                      
+                      {/* Mobile Tip */}
+                      <p className="text-xs text-muted-foreground mt-3 md:hidden">
+                        <span className="italic">Tip: Pinch to zoom the certificate</span>
+                      </p>
                     </div>
                   </div>
                 </TabsContent>
@@ -527,44 +587,65 @@ export default function LearningPathDetail() {
         )}
       </div>
       
-      {/* Modal for certificate */}
+      {/* Mobile Optimized Modal for Certificate */}
       {showCertificate && isCompleted && learningPath && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-lg max-w-4xl w-full space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Your Certificate</h2>
-              <Button variant="ghost" onClick={() => setShowCertificate(false)}>
-                ✕
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-3 md:p-4">
+          <div className="bg-white dark:bg-slate-900 p-4 md:p-6 lg:p-8 rounded-lg max-w-4xl w-full space-y-4 md:space-y-6 max-h-[95vh] overflow-auto">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center sticky top-0 bg-white dark:bg-slate-900 pb-2 border-b z-10">
+              <h2 className="text-xl md:text-2xl font-bold">Your Certificate</h2>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="h-8 w-8 rounded-full p-0" 
+                onClick={() => setShowCertificate(false)}
+              >
+                <X className="h-4 w-4" />
               </Button>
             </div>
             
-            <div className="border rounded-lg p-4">
-              <Certificate 
-                userName={user?.name || ""}
-                courseName={learningPath.title}
-                issueDate={userProgress?.completedAt 
-                  ? format(new Date(userProgress.completedAt), "MMMM dd, yyyy") 
-                  : format(new Date(), "MMMM dd, yyyy")}
-              />
+            {/* Certificate Display - Touch Friendly */}
+            <div className="border rounded-lg p-3 md:p-4 overflow-hidden">
+              <div className="overflow-auto touch-action-pan-y max-w-full" style={{ overscrollBehavior: "contain" }}>
+                <div className="min-w-[280px]">
+                  <Certificate 
+                    userName={user?.name || ""}
+                    courseName={learningPath.title}
+                    issueDate={userProgress?.completedAt 
+                      ? format(new Date(userProgress.completedAt), "MMMM dd, yyyy") 
+                      : format(new Date(), "MMMM dd, yyyy")}
+                  />
+                </div>
+              </div>
             </div>
             
-            <div className="flex gap-3 justify-end">
+            {/* Mobile Tip */}
+            <p className="text-xs text-muted-foreground -mt-2 md:hidden text-center">
+              <span className="italic">Tip: Pinch to zoom the certificate</span>
+            </p>
+            
+            {/* Action Buttons - Responsive Layout */}
+            <div className="flex flex-col sm:flex-row gap-2 md:gap-3 sm:justify-end mt-2">
               <Button 
                 variant="outline" 
-                className="gap-2"
+                className="gap-1 md:gap-2 sm:w-auto text-sm md:text-base"
                 onClick={printCertificate}
               >
                 <Printer className="h-4 w-4" />
-                Print Certificate
+                <span className="md:inline">Print Certificate</span>
               </Button>
               <Button 
-                className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600"
+                className="gap-1 md:gap-2 sm:w-auto text-sm md:text-base bg-gradient-to-r from-purple-600 to-blue-600"
                 onClick={downloadCertificateAsPDF}
               >
                 <Download className="h-4 w-4" />
-                Download Certificate
+                <span className="md:inline">Download Certificate</span>
               </Button>
-              <Button variant="outline" onClick={() => setShowCertificate(false)}>
+              <Button 
+                variant="secondary" 
+                className="sm:w-auto text-sm md:text-base mt-1 sm:mt-0"
+                onClick={() => setShowCertificate(false)}
+              >
                 Close
               </Button>
             </div>
