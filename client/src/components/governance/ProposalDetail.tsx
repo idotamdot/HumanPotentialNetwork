@@ -198,7 +198,8 @@ const ProposalDetail = ({ proposalId, isOpen, onClose }: ProposalDetailProps) =>
   const voteStats = calculateVoteStats();
   const isLoading = loadingProposal || loadingVotes || loadingComments;
   const hasVoted = !!userVote;
-  const isProposalOpen = proposal?.status === "open";
+  const isProposalOpen = proposal && proposal.status === "open" && 
+    new Date(proposal.votingEndDate || new Date()) > new Date();
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -213,22 +214,24 @@ const ProposalDetail = ({ proposalId, isOpen, onClose }: ProposalDetailProps) =>
           <>
             <DialogHeader>
               <div className="flex justify-between items-center">
-                <DialogTitle className="text-2xl">{proposal.title}</DialogTitle>
+                <DialogTitle className="text-2xl">{proposal?.title || "Proposal Details"}</DialogTitle>
                 <Badge className={`text-white ${
-                  proposal.status === "open" 
+                  proposal?.status === "open" 
                     ? "bg-blue-500" 
-                    : proposal.status === "approved" 
+                    : proposal?.status === "approved" 
                     ? "bg-green-500" 
                     : "bg-red-500"
                 }`}>
-                  {proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)}
+                  {proposal && proposal.status 
+                    ? proposal.status.charAt(0).toUpperCase() + proposal.status.slice(1)
+                    : "Unknown"}
                 </Badge>
               </div>
               <DialogDescription className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4" /> 
-                Created {format(new Date(proposal.createdAt || new Date()), "PPP")}
+                Created {format(new Date(proposal?.createdAt || new Date()), "PPP")}
                 <span className="mx-1">•</span>
-                Voting ends {format(new Date(proposal.votingEndDate), "PPP")}
+                Voting ends {format(new Date(proposal?.votingEndDate || new Date()), "PPP")}
               </DialogDescription>
             </DialogHeader>
 
@@ -236,7 +239,7 @@ const ProposalDetail = ({ proposalId, isOpen, onClose }: ProposalDetailProps) =>
               {/* Proposal Description */}
               <div>
                 <h3 className="text-lg font-medium mb-2">Description</h3>
-                <p className="text-muted-foreground">{proposal.description}</p>
+                <p className="text-muted-foreground">{proposal?.description || "No description available"}</p>
               </div>
 
               {/* Voting Section */}
@@ -247,10 +250,10 @@ const ProposalDetail = ({ proposalId, isOpen, onClose }: ProposalDetailProps) =>
                 <div className="mb-6 space-y-3">
                   <div className="flex justify-between items-center text-sm">
                     <span>Total votes: {voteStats.totalVotes}</span>
-                    <span>Required to pass: {proposal.threshold}%</span>
+                    <span>Required to pass: {proposal?.threshold || 50}%</span>
                   </div>
                   
-                  {proposal.options.map(option => {
+                  {proposal?.options && Array.isArray(proposal.options) ? proposal.options.map(option => {
                     const optionStats = voteStats.votesByOption[option] || { count: 0, percentage: 0 };
                     return (
                       <div key={option} className="space-y-1">
@@ -261,7 +264,11 @@ const ProposalDetail = ({ proposalId, isOpen, onClose }: ProposalDetailProps) =>
                         <Progress value={optionStats.percentage} className="h-2" />
                       </div>
                     );
-                  })}
+                  }) : (
+                    <div className="text-center p-2 bg-muted-foreground/10 rounded">
+                      No voting options available
+                    </div>
+                  )}
                 </div>
 
                 {/* Voting Form - Only for open proposals and authenticated users */}
@@ -282,12 +289,16 @@ const ProposalDetail = ({ proposalId, isOpen, onClose }: ProposalDetailProps) =>
                     )}
                     
                     <RadioGroup value={selectedOption || ""} onValueChange={setSelectedOption}>
-                      {proposal.options.map(option => (
+                      {proposal?.options && Array.isArray(proposal.options) ? proposal.options.map(option => (
                         <div key={option} className="flex items-center space-x-2">
                           <RadioGroupItem value={option} id={`option-${option}`} />
                           <Label htmlFor={`option-${option}`}>{option}</Label>
                         </div>
-                      ))}
+                      )) : (
+                        <div className="text-center p-2 text-muted-foreground">
+                          No options available
+                        </div>
+                      )}
                     </RadioGroup>
                     
                     <div>
