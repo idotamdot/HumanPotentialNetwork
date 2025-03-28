@@ -6,37 +6,55 @@ export default function KidsZoneBackground() {
       {/* Sky background */}
       <div className="absolute inset-0 bg-gradient-to-b from-blue-50 to-white opacity-30" />
       
-      {/* Sun with tattoo-style outline */}
-      <div className="absolute top-8 right-16 h-24 w-24">
-        {/* Sun core */}
-        <div className="absolute inset-0 rounded-full bg-yellow-100 opacity-20 border border-yellow-300"></div>
+      {/* Bright glowing sun with tattoo-style outline */}
+      <div className="absolute top-8 right-16 h-28 w-28 animate-pulse">
+        {/* Outer glow effect */}
+        <div className="absolute -inset-6 rounded-full bg-yellow-300 opacity-10 animate-pulse"></div>
+        <div className="absolute -inset-4 rounded-full bg-yellow-400 opacity-15 animate-pulse"></div>
         
-        {/* Sun rays - tattoo style with thin outlines */}
-        {Array.from({ length: 12 }).map((_, i) => (
-          <div 
-            key={i} 
-            className="absolute h-12 w-0.5 bg-yellow-200 opacity-20 origin-bottom border-l border-yellow-300" 
-            style={{ 
-              left: '50%', 
-              top: '-20%', 
-              transform: `translateX(-50%) rotate(${i * 30}deg)` 
-            }}
-          />
+        {/* Sun core with bright center and gradient */}
+        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-300 to-amber-300 opacity-80 border border-yellow-500 shadow-lg shadow-yellow-300/50"></div>
+        <div className="absolute inset-2 rounded-full bg-yellow-100 opacity-70 mix-blend-overlay"></div>
+        
+        {/* Bright center */}
+        <div className="absolute inset-4 rounded-full bg-white opacity-50"></div>
+        
+        {/* Sun rays - tattoo style with bright outlines and glow */}
+        {Array.from({ length: 16 }).map((_, i) => (
+          <div key={i}>
+            <div 
+              className="absolute h-16 w-1 bg-gradient-to-b from-yellow-300 to-amber-200 opacity-60 origin-bottom border-l border-yellow-400" 
+              style={{ 
+                left: '50%', 
+                top: '-30%', 
+                transform: `translateX(-50%) rotate(${i * 22.5}deg)` 
+              }}
+            />
+            {/* Glow effect for each ray */}
+            <div 
+              className="absolute h-14 w-0.5 bg-white opacity-40 origin-bottom blur-[1px]" 
+              style={{ 
+                left: '50%', 
+                top: '-25%', 
+                transform: `translateX(-50%) rotate(${i * 22.5}deg)` 
+              }}
+            />
+          </div>
         ))}
       </div>
       
-      {/* Tattoo-style clouds with outlines */}
-      <div className="absolute top-20 left-[5%] opacity-30">
-        <Cloud scale={1} />
+      {/* Brighter tattoo-style clouds with outlines */}
+      <div className="absolute top-20 left-[5%] opacity-40">
+        <Cloud scale={1} isGlowing={true} />
       </div>
-      <div className="absolute top-40 left-[35%] opacity-25">
-        <Cloud scale={1.5} />
+      <div className="absolute top-40 left-[35%] opacity-40">
+        <Cloud scale={1.5} isGlowing={true} />
       </div>
-      <div className="absolute top-16 left-[65%] opacity-20">
-        <Cloud scale={0.8} />
+      <div className="absolute top-16 left-[65%] opacity-35">
+        <Cloud scale={0.8} isGlowing={true} />
       </div>
-      <div className="absolute top-60 left-[80%] opacity-15">
-        <Cloud scale={1.2} />
+      <div className="absolute top-60 left-[80%] opacity-30">
+        <Cloud scale={1.2} isGlowing={true} />
       </div>
       
       {/* Bottom hills/mountains - tattoo style with thin outlines */}
@@ -59,14 +77,20 @@ export default function KidsZoneBackground() {
   );
 }
 
-function Cloud({ scale = 1 }: { scale?: number }) {
-  // Tattoo-style cloud with thin border outline
+function Cloud({ scale = 1, isGlowing = false }: { scale?: number; isGlowing?: boolean }) {
+  // Tattoo-style cloud with thin border outline and optional glow
   return (
     <div className="relative" style={{ transform: `scale(${scale})` }}>
-      <div className="absolute w-12 h-6 bg-white opacity-40 rounded-full border border-blue-100"></div>
-      <div className="absolute w-8 h-8 bg-white opacity-40 rounded-full -top-2 -left-2 border border-blue-100"></div>
-      <div className="absolute w-10 h-10 bg-white opacity-40 rounded-full -top-1 left-4 border border-blue-100"></div>
-      <div className="absolute w-8 h-8 bg-white opacity-40 rounded-full -top-1 left-10 border border-blue-100"></div>
+      {/* Glow effect if enabled */}
+      {isGlowing && (
+        <div className="absolute w-16 h-10 bg-blue-100 opacity-20 rounded-full blur-sm -top-2 -left-2"></div>
+      )}
+      
+      {/* Cloud parts with enhanced brightness */}
+      <div className={`absolute w-12 h-6 ${isGlowing ? 'bg-white opacity-60' : 'bg-white opacity-40'} rounded-full border border-blue-200 ${isGlowing ? 'shadow-sm shadow-blue-100/30' : ''}`}></div>
+      <div className={`absolute w-8 h-8 ${isGlowing ? 'bg-white opacity-60' : 'bg-white opacity-40'} rounded-full -top-2 -left-2 border border-blue-200 ${isGlowing ? 'shadow-sm shadow-blue-100/30' : ''}`}></div>
+      <div className={`absolute w-10 h-10 ${isGlowing ? 'bg-white opacity-60' : 'bg-white opacity-40'} rounded-full -top-1 left-4 border border-blue-200 ${isGlowing ? 'shadow-sm shadow-blue-100/30' : ''}`}></div>
+      <div className={`absolute w-8 h-8 ${isGlowing ? 'bg-white opacity-60' : 'bg-white opacity-40'} rounded-full -top-1 left-10 border border-blue-200 ${isGlowing ? 'shadow-sm shadow-blue-100/30' : ''}`}></div>
     </div>
   );
 }
