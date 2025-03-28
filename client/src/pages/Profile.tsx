@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { MobileThemeSelector } from "@/components/ui/mobile-theme-selector";
 import {
   Dialog,
   DialogContent,
@@ -36,14 +37,14 @@ export default function Profile() {
   const [newSkillProficiency, setNewSkillProficiency] = useState(70);
   const [newPassionName, setNewPassionName] = useState("");
   
-  const { data: skills, isLoading } = useQuery({
+  const { data: skills = [], isLoading } = useQuery<any[]>({
     queryKey: [`/api/users/${user?.id}/skills`],
     enabled: !!user?.id,
   });
 
   // Separate skills by category
-  const coreSkills = skills?.filter((skill: any) => skill.category === "core") || [];
-  const passions = skills?.filter((skill: any) => skill.category === "passion") || [];
+  const coreSkills = skills.filter((skill) => skill.category === "core");
+  const passions = skills.filter((skill) => skill.category === "passion");
   
   // Add skill mutation
   const addSkillMutation = useMutation({
@@ -173,7 +174,12 @@ export default function Profile() {
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Personal Information</CardTitle>
               {!isEditing ? (
-                <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
+                <div className="flex space-x-2">
+                  <div className="md:hidden">
+                    <MobileThemeSelector />
+                  </div>
+                  <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
+                </div>
               ) : (
                 <div className="flex space-x-2">
                   <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>

@@ -2,6 +2,7 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { sidebarIcons } from "@/lib/icons";
 import { useAuth } from "@/hooks/use-auth";
+import { ThemeSelector } from "@/components/ui/theme-selector";
 
 export default function Sidebar() {
   const [location] = useLocation();
@@ -76,6 +77,12 @@ export default function Sidebar() {
             ))}
           </nav>
         </div>
+        {/* Theme selector */}
+        <div className="flex-shrink-0 border-t border-gray-200 p-4">
+          <p className="text-xs font-medium text-gray-500 mb-2">Customize Your Mood</p>
+          <ThemeSelector className="w-full" />
+        </div>
+        
         {/* User menu */}
         <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
           <div className="flex-shrink-0 w-full group block">

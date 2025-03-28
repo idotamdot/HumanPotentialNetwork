@@ -44,20 +44,61 @@ aside {
   transition: text-shadow 0.3s ease;
 }
 
-/* Make headings glow */
+/* Make headings glow with theme-based colors */
 h1, h2, h3, h4, h5, h6 {
-  text-shadow: 0 0 8px rgba(139, 92, 246, 0.2);
-  transition: text-shadow 0.3s ease;
+  text-shadow: var(--theme-glow, 0 0 8px rgba(139, 92, 246, 0.2));
+  transition: text-shadow 0.3s ease, color 0.3s ease;
 }
 
 /* Special glow effects for headings */
 h1 {
-  text-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+  text-shadow: var(--theme-glow, 0 0 10px rgba(139, 92, 246, 0.3));
   letter-spacing: 0.025em;
 }
 
 h1:hover {
-  text-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
+  text-shadow: var(--theme-glow-strong, 0 0 15px rgba(139, 92, 246, 0.6));
+}
+
+/* Theme Mood Selectors - Special styling based on mood */
+.theme-energetic {
+  --mood-accent: rgba(255, 69, 0, 0.15);
+  --mood-accent-hover: rgba(255, 69, 0, 0.25);
+}
+
+.theme-playful {
+  --mood-accent: rgba(138, 43, 226, 0.15);
+  --mood-accent-hover: rgba(138, 43, 226, 0.25);
+}
+
+.theme-focused {
+  --mood-accent: rgba(30, 144, 255, 0.15);
+  --mood-accent-hover: rgba(30, 144, 255, 0.25);
+}
+
+.theme-calm {
+  --mood-accent: rgba(0, 206, 209, 0.15);
+  --mood-accent-hover: rgba(0, 206, 209, 0.25);
+}
+
+.theme-creative {
+  --mood-accent: rgba(255, 20, 147, 0.15);
+  --mood-accent-hover: rgba(255, 20, 147, 0.25);
+}
+
+.theme-balanced {
+  --mood-accent: rgba(50, 205, 50, 0.15);
+  --mood-accent-hover: rgba(50, 205, 50, 0.25);
+}
+
+.theme-reflective {
+  --mood-accent: rgba(75, 0, 130, 0.15);
+  --mood-accent-hover: rgba(75, 0, 130, 0.25);
+}
+
+.theme-optimistic {
+  --mood-accent: rgba(255, 165, 0, 0.15);
+  --mood-accent-hover: rgba(255, 165, 0, 0.25);
 }
 
 /* Create a special kids-zone title with animated rainbow glow */
@@ -116,10 +157,10 @@ button:hover, .btn:hover, [role="button"]:hover {
   box-shadow: 0 0 10px rgba(139, 92, 246, 0.3) !important;
 }
 
-/* Enhanced hover effect for primary buttons */
+/* Enhanced hover effect for primary buttons with dynamic theme-based glow */
 .btn-primary:hover, button.primary:hover, [data-variant="primary"]:hover {
-  text-shadow: 0 0 12px rgba(139, 92, 246, 0.8) !important;
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.6) !important;
+  text-shadow: var(--theme-glow, 0 0 12px rgba(139, 92, 246, 0.8)) !important;
+  box-shadow: var(--theme-glow-strong, 0 0 20px rgba(139, 92, 246, 0.6)) !important;
 }
 
 /* Special animated glow effect for Kids Zone buttons */
