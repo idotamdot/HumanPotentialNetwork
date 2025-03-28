@@ -2,6 +2,74 @@ import { pgTable, text, serial, integer, boolean, timestamp, json } from "drizzl
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Learning path related schemas
+export const learningPaths = pgTable("learning_paths", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // skill-focused, issue-specific, project-related, etc.
+  difficulty: text("difficulty").notNull(), // beginner, intermediate, advanced
+  estimatedHours: integer("estimated_hours").notNull(),
+  tags: text("tags").array().notNull(),
+  thumbnail: text("thumbnail"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertLearningPathSchema = createInsertSchema(learningPaths).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const learningModules = pgTable("learning_modules", {
+  id: serial("id").primaryKey(),
+  pathId: integer("path_id").notNull().references(() => learningPaths.id),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  type: text("type").notNull(), // video, article, quiz, exercise, etc.
+  content: text("content").notNull(), // URL or markdown content
+  duration: integer("duration").notNull(), // in minutes
+  sequence: integer("sequence").notNull(), // order in the learning path
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertLearningModuleSchema = createInsertSchema(learningModules).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const userLearningProgress = pgTable("user_learning_progress", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  pathId: integer("path_id").notNull().references(() => learningPaths.id),
+  progress: integer("progress").default(0), // 0-100
+  enrolled: boolean("enrolled").default(true),
+  lastModuleId: integer("last_module_id").references(() => learningModules.id),
+  completedModules: integer("completed_modules").array().default([]),
+  startedAt: timestamp("started_at").defaultNow(),
+  lastAccessedAt: timestamp("last_accessed_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+});
+
+export const insertUserLearningProgressSchema = createInsertSchema(userLearningProgress).omit({
+  id: true,
+  progress: true,
+  enrolled: true,
+  startedAt: true,
+  lastAccessedAt: true,
+  completedAt: true,
+});
+
+export const learningPathSkills = pgTable("learning_path_skills", {
+  id: serial("id").primaryKey(),
+  pathId: integer("path_id").notNull().references(() => learningPaths.id),
+  skillName: text("skill_name").notNull(),
+  proficiencyGain: integer("proficiency_gain").default(10), // how much this path helps with skill
+});
+
+export const insertLearningPathSkillSchema = createInsertSchema(learningPathSkills).omit({
+  id: true,
+});
+
 // User schema
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -144,3 +212,16 @@ export type InsertProjectRecommendation = z.infer<typeof insertProjectRecommenda
 
 export type Impact = typeof impacts.$inferSelect;
 export type InsertImpact = z.infer<typeof insertImpactSchema>;
+
+// Learning path types
+export type LearningPath = typeof learningPaths.$inferSelect;
+export type InsertLearningPath = z.infer<typeof insertLearningPathSchema>;
+
+export type LearningModule = typeof learningModules.$inferSelect;
+export type InsertLearningModule = z.infer<typeof insertLearningModuleSchema>;
+
+export type UserLearningProgress = typeof userLearningProgress.$inferSelect;
+export type InsertUserLearningProgress = z.infer<typeof insertUserLearningProgressSchema>;
+
+export type LearningPathSkill = typeof learningPathSkills.$inferSelect;
+export type InsertLearningPathSkill = z.infer<typeof insertLearningPathSkillSchema>;

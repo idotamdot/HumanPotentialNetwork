@@ -5,7 +5,11 @@ import {
   projects, Project, InsertProject,
   userProjects, UserProject, InsertUserProject,
   projectRecommendations, ProjectRecommendation, InsertProjectRecommendation,
-  impacts, Impact, InsertImpact
+  impacts, Impact, InsertImpact,
+  learningPaths, LearningPath, InsertLearningPath,
+  learningModules, LearningModule, InsertLearningModule,
+  userLearningProgress, UserLearningProgress, InsertUserLearningProgress,
+  learningPathSkills, LearningPathSkill, InsertLearningPathSkill
 } from "@shared/schema";
 
 export interface IStorage {
@@ -48,6 +52,31 @@ export interface IStorage {
   getUserImpacts(userId: number): Promise<Impact[]>;
   createImpact(impact: InsertImpact): Promise<Impact>;
   getImpact(id: number): Promise<Impact | undefined>;
+  
+  // Learning Path methods
+  getAllLearningPaths(): Promise<LearningPath[]>;
+  getLearningPath(id: number): Promise<LearningPath | undefined>;
+  getLearningPathsByCategory(category: string): Promise<LearningPath[]>;
+  getLearningPathsByTag(tag: string): Promise<LearningPath[]>;
+  createLearningPath(path: InsertLearningPath): Promise<LearningPath>;
+  updateLearningPath(id: number, data: Partial<LearningPath>): Promise<LearningPath | undefined>;
+  
+  // Learning Module methods
+  getLearningModulesByPath(pathId: number): Promise<LearningModule[]>;
+  getLearningModule(id: number): Promise<LearningModule | undefined>;
+  createLearningModule(module: InsertLearningModule): Promise<LearningModule>;
+  updateLearningModule(id: number, data: Partial<LearningModule>): Promise<LearningModule | undefined>;
+  
+  // User Learning Progress methods
+  getUserLearningPaths(userId: number): Promise<{path: LearningPath, progress: UserLearningProgress}[]>;
+  getUserPathProgress(userId: number, pathId: number): Promise<UserLearningProgress | undefined>;
+  createUserLearningProgress(progress: InsertUserLearningProgress): Promise<UserLearningProgress>;
+  updateUserLearningProgress(id: number, data: Partial<UserLearningProgress>): Promise<UserLearningProgress | undefined>;
+  
+  // Learning Path Skills methods
+  getLearningPathSkills(pathId: number): Promise<LearningPathSkill[]>;
+  createLearningPathSkill(skill: InsertLearningPathSkill): Promise<LearningPathSkill>;
+  deleteLearningPathSkill(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -58,6 +87,10 @@ export class MemStorage implements IStorage {
   private userProjects: Map<number, UserProject>;
   private projectRecommendations: Map<number, ProjectRecommendation>;
   private impacts: Map<number, Impact>;
+  private learningPaths: Map<number, LearningPath>;
+  private learningModules: Map<number, LearningModule>;
+  private userLearningProgress: Map<number, UserLearningProgress>;
+  private learningPathSkills: Map<number, LearningPathSkill>;
   
   private nextIds: {
     users: number;
@@ -67,6 +100,10 @@ export class MemStorage implements IStorage {
     userProjects: number;
     projectRecommendations: number;
     impacts: number;
+    learningPaths: number;
+    learningModules: number;
+    userLearningProgress: number;
+    learningPathSkills: number;
   };
 
   constructor() {
@@ -77,6 +114,10 @@ export class MemStorage implements IStorage {
     this.userProjects = new Map();
     this.projectRecommendations = new Map();
     this.impacts = new Map();
+    this.learningPaths = new Map();
+    this.learningModules = new Map();
+    this.userLearningProgress = new Map();
+    this.learningPathSkills = new Map();
     
     this.nextIds = {
       users: 1,
@@ -86,6 +127,10 @@ export class MemStorage implements IStorage {
       userProjects: 1,
       projectRecommendations: 1,
       impacts: 1,
+      learningPaths: 1,
+      learningModules: 1,
+      userLearningProgress: 1,
+      learningPathSkills: 1,
     };
     
     // Initialize with some data
@@ -329,6 +374,142 @@ export class MemStorage implements IStorage {
   
   async getImpact(id: number): Promise<Impact | undefined> {
     return this.impacts.get(id);
+  }
+
+  // Learning Path methods
+  async getAllLearningPaths(): Promise<LearningPath[]> {
+    return Array.from(this.learningPaths.values());
+  }
+
+  async getLearningPath(id: number): Promise<LearningPath | undefined> {
+    return this.learningPaths.get(id);
+  }
+
+  async getLearningPathsByCategory(category: string): Promise<LearningPath[]> {
+    return Array.from(this.learningPaths.values()).filter(
+      (path) => path.category === category
+    );
+  }
+
+  async getLearningPathsByTag(tag: string): Promise<LearningPath[]> {
+    return Array.from(this.learningPaths.values()).filter(
+      (path) => path.tags.includes(tag)
+    );
+  }
+
+  async createLearningPath(insertPath: InsertLearningPath): Promise<LearningPath> {
+    const id = this.nextIds.learningPaths++;
+    const path: LearningPath = { 
+      ...insertPath, 
+      id,
+      createdAt: new Date()
+    };
+    this.learningPaths.set(id, path);
+    return path;
+  }
+
+  async updateLearningPath(id: number, data: Partial<LearningPath>): Promise<LearningPath | undefined> {
+    const path = await this.getLearningPath(id);
+    if (!path) return undefined;
+    
+    const updatedPath = { ...path, ...data };
+    this.learningPaths.set(id, updatedPath);
+    return updatedPath;
+  }
+
+  // Learning Module methods
+  async getLearningModulesByPath(pathId: number): Promise<LearningModule[]> {
+    return Array.from(this.learningModules.values())
+      .filter(module => module.pathId === pathId)
+      .sort((a, b) => a.sequence - b.sequence);
+  }
+
+  async getLearningModule(id: number): Promise<LearningModule | undefined> {
+    return this.learningModules.get(id);
+  }
+
+  async createLearningModule(insertModule: InsertLearningModule): Promise<LearningModule> {
+    const id = this.nextIds.learningModules++;
+    const module: LearningModule = {
+      ...insertModule,
+      id,
+      createdAt: new Date()
+    };
+    this.learningModules.set(id, module);
+    return module;
+  }
+
+  async updateLearningModule(id: number, data: Partial<LearningModule>): Promise<LearningModule | undefined> {
+    const module = await this.getLearningModule(id);
+    if (!module) return undefined;
+    
+    const updatedModule = { ...module, ...data };
+    this.learningModules.set(id, updatedModule);
+    return updatedModule;
+  }
+
+  // User Learning Progress methods
+  async getUserLearningPaths(userId: number): Promise<{ path: LearningPath, progress: UserLearningProgress }[]> {
+    const progressEntries = Array.from(this.userLearningProgress.values())
+      .filter(progress => progress.userId === userId);
+    
+    return progressEntries.map(progress => {
+      const path = this.learningPaths.get(progress.pathId);
+      if (!path) throw new Error(`Learning path not found for id: ${progress.pathId}`);
+      return { path, progress };
+    });
+  }
+
+  async getUserPathProgress(userId: number, pathId: number): Promise<UserLearningProgress | undefined> {
+    return Array.from(this.userLearningProgress.values()).find(
+      progress => progress.userId === userId && progress.pathId === pathId
+    );
+  }
+
+  async createUserLearningProgress(insertProgress: InsertUserLearningProgress): Promise<UserLearningProgress> {
+    const id = this.nextIds.userLearningProgress++;
+    const progress: UserLearningProgress = {
+      ...insertProgress,
+      id,
+      progress: 0,
+      enrolled: true,
+      completedModules: [],
+      startedAt: new Date(),
+      lastAccessedAt: new Date(),
+      completedAt: null
+    };
+    this.userLearningProgress.set(id, progress);
+    return progress;
+  }
+
+  async updateUserLearningProgress(id: number, data: Partial<UserLearningProgress>): Promise<UserLearningProgress | undefined> {
+    const progress = this.userLearningProgress.get(id);
+    if (!progress) return undefined;
+    
+    const updatedProgress = { ...progress, ...data, lastAccessedAt: new Date() };
+    this.userLearningProgress.set(id, updatedProgress);
+    return updatedProgress;
+  }
+
+  // Learning Path Skills methods
+  async getLearningPathSkills(pathId: number): Promise<LearningPathSkill[]> {
+    return Array.from(this.learningPathSkills.values())
+      .filter(skill => skill.pathId === pathId);
+  }
+
+  async createLearningPathSkill(insertSkill: InsertLearningPathSkill): Promise<LearningPathSkill> {
+    const id = this.nextIds.learningPathSkills++;
+    const skill: LearningPathSkill = {
+      ...insertSkill,
+      id,
+      proficiencyGain: insertSkill.proficiencyGain || 10
+    };
+    this.learningPathSkills.set(id, skill);
+    return skill;
+  }
+
+  async deleteLearningPathSkill(id: number): Promise<boolean> {
+    return this.learningPathSkills.delete(id);
   }
 
   // Initialize with sample data
@@ -583,6 +764,123 @@ export class MemStorage implements IStorage {
       amount: 2000,
       description: "Provided clean water access to 1,500 people"
     });
+    
+    // Create sample learning paths
+    const climatePath = await this.createLearningPath({
+      title: "Climate Action Fundamentals",
+      description: "Learn the basics of climate science and how to take effective action on climate change.",
+      category: "issue-specific",
+      difficulty: "beginner",
+      estimatedHours: 10,
+      tags: ["Climate Change", "Sustainability", "Environmental Science"],
+      thumbnail: "https://images.unsplash.com/photo-1470115636492-6d2b56f9146d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+    });
+    
+    const webDevPath = await this.createLearningPath({
+      title: "Web Development for Social Impact",
+      description: "Learn how to build web applications that address social challenges and create positive change.",
+      category: "skill-focused",
+      difficulty: "intermediate",
+      estimatedHours: 20,
+      tags: ["Web Development", "Social Impact", "Technology", "Programming"],
+      thumbnail: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+    });
+    
+    const communityPath = await this.createLearningPath({
+      title: "Community Organizing Toolkit",
+      description: "Essential skills and strategies for organizing communities around shared goals and values.",
+      category: "skill-focused",
+      difficulty: "beginner",
+      estimatedHours: 8,
+      tags: ["Community", "Leadership", "Organizing", "Social Change"],
+      thumbnail: "https://images.unsplash.com/photo-1544027993-37dbfe43562a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+    });
+    
+    // Create sample modules for climate path
+    await this.createLearningModule({
+      pathId: climatePath.id,
+      title: "Introduction to Climate Science",
+      description: "Basic concepts and terminology of climate science and global warming.",
+      type: "article",
+      content: "https://example.com/climate-science-intro",
+      duration: 30,
+      sequence: 1
+    });
+    
+    await this.createLearningModule({
+      pathId: climatePath.id,
+      title: "Climate Change Impacts",
+      description: "How climate change is affecting different regions and ecosystems around the world.",
+      type: "video",
+      content: "https://example.com/climate-impacts-video",
+      duration: 45,
+      sequence: 2
+    });
+    
+    await this.createLearningModule({
+      pathId: climatePath.id,
+      title: "Individual Climate Action",
+      description: "Practical steps individuals can take to reduce their carbon footprint.",
+      type: "interactive",
+      content: "https://example.com/climate-action-calculator",
+      duration: 60,
+      sequence: 3
+    });
+    
+    // Create sample modules for web dev path
+    await this.createLearningModule({
+      pathId: webDevPath.id,
+      title: "HTML & CSS for Social Impact",
+      description: "Build accessible, inclusive websites using semantic HTML and responsive CSS.",
+      type: "tutorial",
+      content: "https://example.com/html-css-social-impact",
+      duration: 90,
+      sequence: 1
+    });
+    
+    await this.createLearningModule({
+      pathId: webDevPath.id,
+      title: "JavaScript for Interactive Advocacy",
+      description: "Create interactive data visualizations and tools for advocacy campaigns.",
+      type: "tutorial",
+      content: "https://example.com/js-advocacy",
+      duration: 120,
+      sequence: 2
+    });
+    
+    // Create sample learning path skills
+    await this.createLearningPathSkill({
+      pathId: climatePath.id,
+      skillName: "Climate Action",
+      proficiencyGain: 25
+    });
+    
+    await this.createLearningPathSkill({
+      pathId: webDevPath.id,
+      skillName: "Web Development", 
+      proficiencyGain: 30
+    });
+    
+    await this.createLearningPathSkill({
+      pathId: communityPath.id,
+      skillName: "Project Management",
+      proficiencyGain: 15
+    });
+    
+    // Enroll user in a learning path
+    await this.createUserLearningProgress({
+      userId: user.id,
+      pathId: webDevPath.id
+    });
+    
+    const progress = await this.getUserPathProgress(user.id, webDevPath.id);
+    if (progress) {
+      await this.updateUserLearningProgress(progress.id, {
+        progress: 35,
+        lastModuleId: 1,
+        completedModules: [1]
+      });
+    }
   }
 }
 

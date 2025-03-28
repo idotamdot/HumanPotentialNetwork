@@ -2,7 +2,16 @@ import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
-import { insertUserSchema, insertSkillSchema, insertUserProjectSchema, insertImpactSchema } from "@shared/schema";
+import { 
+  insertUserSchema, 
+  insertSkillSchema, 
+  insertUserProjectSchema, 
+  insertImpactSchema,
+  insertLearningPathSchema,
+  insertLearningModuleSchema,
+  insertUserLearningProgressSchema,
+  insertLearningPathSkillSchema
+} from "@shared/schema";
 import { setupAuth } from "./auth";
 import { RecommendationService } from "./services/recommendation";
 
@@ -298,6 +307,203 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid impact data", errors: error.errors });
       }
       res.status(500).json({ message: "Failed to create impact" });
+    }
+  });
+  
+  // Learning Paths routes
+  app.get("/api/learning-paths", async (req, res) => {
+    try {
+      const paths = await storage.getAllLearningPaths();
+      res.json(paths);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get learning paths" });
+    }
+  });
+  
+  app.get("/api/learning-paths/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid learning path ID" });
+    }
+    
+    const path = await storage.getLearningPath(id);
+    if (!path) {
+      return res.status(404).json({ message: "Learning path not found" });
+    }
+    
+    res.json(path);
+  });
+  
+  app.get("/api/learning-paths/category/:category", async (req, res) => {
+    try {
+      const category = req.params.category;
+      const paths = await storage.getLearningPathsByCategory(category);
+      res.json(paths);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get learning paths by category" });
+    }
+  });
+  
+  app.get("/api/learning-paths/tag/:tag", async (req, res) => {
+    try {
+      const tag = req.params.tag;
+      const paths = await storage.getLearningPathsByTag(tag);
+      res.json(paths);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get learning paths by tag" });
+    }
+  });
+  
+  app.post("/api/learning-paths", async (req, res) => {
+    try {
+      const pathData = insertLearningPathSchema.parse(req.body);
+      const path = await storage.createLearningPath(pathData);
+      res.status(201).json(path);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid learning path data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create learning path" });
+    }
+  });
+  
+  // Learning Modules routes
+  app.get("/api/learning-paths/:pathId/modules", async (req, res) => {
+    const pathId = parseInt(req.params.pathId);
+    if (isNaN(pathId)) {
+      return res.status(400).json({ message: "Invalid learning path ID" });
+    }
+    
+    try {
+      const modules = await storage.getLearningModulesByPath(pathId);
+      res.json(modules);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get learning modules" });
+    }
+  });
+  
+  app.post("/api/learning-modules", async (req, res) => {
+    try {
+      const moduleData = insertLearningModuleSchema.parse(req.body);
+      const module = await storage.createLearningModule(moduleData);
+      res.status(201).json(module);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid learning module data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create learning module" });
+    }
+  });
+  
+  // User Learning Progress routes
+  app.get("/api/users/:userId/learning-paths", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    
+    try {
+      const userPaths = await storage.getUserLearningPaths(userId);
+      res.json(userPaths);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user learning paths" });
+    }
+  });
+  
+  app.get("/api/users/:userId/learning-paths/:pathId/progress", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    const pathId = parseInt(req.params.pathId);
+    
+    if (isNaN(userId) || isNaN(pathId)) {
+      return res.status(400).json({ message: "Invalid user or path ID" });
+    }
+    
+    try {
+      const progress = await storage.getUserPathProgress(userId, pathId);
+      if (!progress) {
+        return res.status(404).json({ message: "Progress not found" });
+      }
+      
+      res.json(progress);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user learning progress" });
+    }
+  });
+  
+  app.post("/api/user-learning-progress", async (req, res) => {
+    try {
+      const progressData = insertUserLearningProgressSchema.parse(req.body);
+      const progress = await storage.createUserLearningProgress(progressData);
+      res.status(201).json(progress);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid user learning progress data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create user learning progress" });
+    }
+  });
+  
+  app.patch("/api/user-learning-progress/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid progress ID" });
+    }
+    
+    try {
+      const updatedProgress = await storage.updateUserLearningProgress(id, req.body);
+      if (!updatedProgress) {
+        return res.status(404).json({ message: "User learning progress not found" });
+      }
+      
+      res.json(updatedProgress);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update user learning progress" });
+    }
+  });
+  
+  // Learning Path Skills routes
+  app.get("/api/learning-paths/:pathId/skills", async (req, res) => {
+    const pathId = parseInt(req.params.pathId);
+    if (isNaN(pathId)) {
+      return res.status(400).json({ message: "Invalid learning path ID" });
+    }
+    
+    try {
+      const skills = await storage.getLearningPathSkills(pathId);
+      res.json(skills);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get learning path skills" });
+    }
+  });
+  
+  app.post("/api/learning-path-skills", async (req, res) => {
+    try {
+      const skillData = insertLearningPathSkillSchema.parse(req.body);
+      const skill = await storage.createLearningPathSkill(skillData);
+      res.status(201).json(skill);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid learning path skill data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create learning path skill" });
+    }
+  });
+  
+  app.delete("/api/learning-path-skills/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid skill ID" });
+    }
+    
+    try {
+      const success = await storage.deleteLearningPathSkill(id);
+      if (!success) {
+        return res.status(404).json({ message: "Learning path skill not found" });
+      }
+      
+      res.status(204).end();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete learning path skill" });
     }
   });
 
