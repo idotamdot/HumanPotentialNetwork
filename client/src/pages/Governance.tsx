@@ -73,9 +73,19 @@ const Governance = () => {
         </p>
         <div className="flex justify-between items-center">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full md:w-1/3 grid-cols-2">
-              <TabsTrigger value="active">Active Proposals ({activeProposals.length})</TabsTrigger>
-              <TabsTrigger value="past">Past Proposals ({pastProposals.length})</TabsTrigger>
+            <TabsList className="grid w-full md:w-auto max-w-full min-w-[320px] md:min-w-[450px] grid-cols-2 p-1">
+              <TabsTrigger 
+                value="active" 
+                className="px-2 md:px-4 py-2 text-xs md:text-sm whitespace-normal h-auto data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600/90 data-[state=active]:to-blue-600/90 data-[state=active]:text-white font-medium"
+              >
+                Active Proposals ({activeProposals.length})
+              </TabsTrigger>
+              <TabsTrigger 
+                value="past" 
+                className="px-2 md:px-4 py-2 text-xs md:text-sm whitespace-normal h-auto data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600/90 data-[state=active]:to-blue-600/90 data-[state=active]:text-white font-medium"
+              >
+                Past Proposals ({pastProposals.length})
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="active" className="mt-6">
