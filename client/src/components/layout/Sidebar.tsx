@@ -13,6 +13,7 @@ export default function Sidebar() {
     { href: "/issues", label: "Global Issues", icon: sidebarIcons.earth },
     { href: "/projects", label: "My Projects", icon: sidebarIcons.team },
     { href: "/knowledge", label: "Knowledge Commons", icon: sidebarIcons.book },
+    { href: "/learning-paths", label: "Learning Paths", icon: sidebarIcons.learning },
     { href: "/governance", label: "Governance", icon: sidebarIcons.governance },
     { href: "/rewards", label: "Rewards", icon: sidebarIcons.award },
     { href: "/kids", label: "Young Changemakers", icon: sidebarIcons.kids },

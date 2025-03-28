@@ -12,6 +12,8 @@ import KnowledgeCommons from "@/pages/KnowledgeCommons";
 import Rewards from "@/pages/Rewards";
 import KidsZone from "@/pages/KidsZone";
 import Governance from "@/pages/Governance";
+import LearningPaths from "@/pages/LearningPaths";
+import LearningPathDetail from "@/pages/LearningPathDetail";
 import AuthPage from "@/pages/auth-page"; 
 import AppLayout from "@/components/layout/AppLayout";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
@@ -27,6 +29,8 @@ function Router() {
       <ProtectedRoute path="/projects" component={Projects} />
       <ProtectedRoute path="/projects/:id" component={ProjectDetail} />
       <ProtectedRoute path="/knowledge" component={KnowledgeCommons} />
+      <ProtectedRoute path="/learning-paths" component={LearningPaths} />
+      <ProtectedRoute path="/learning-paths/:id" component={LearningPathDetail} />
       <ProtectedRoute path="/rewards" component={Rewards} />
       <ProtectedRoute path="/kids" component={KidsZone} />
       <ProtectedRoute path="/governance" component={Governance} />

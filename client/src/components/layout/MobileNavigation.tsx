@@ -9,6 +9,7 @@ export default function MobileNavigation() {
     { href: "/", label: "Home", icon: sidebarIcons.home },
     { href: "/issues", label: "Issues", icon: sidebarIcons.earth },
     { href: "/projects", label: "Projects", icon: sidebarIcons.team },
+    { href: "/learning-paths", label: "Learn", icon: sidebarIcons.learning },
     { href: "/governance", label: "Govern", icon: sidebarIcons.governance },
     { href: "/profile", label: "Profile", icon: sidebarIcons.user },
   ];
