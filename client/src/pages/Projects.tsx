@@ -5,11 +5,25 @@ import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useEffect, useState } from "react";
 
 export default function Projects() {
   const { user } = useAuth();
+  const [location] = useLocation();
+  const [defaultTab, setDefaultTab] = useState("my-projects");
+  
+  // Parse the URL to get the issueId if present
+  const urlParams = new URLSearchParams(location.split('?')[1]);
+  const issueId = urlParams.get('issueId');
+  
+  // If issueId is present, set the default tab to "all"
+  useEffect(() => {
+    if (issueId) {
+      setDefaultTab("all");
+    }
+  }, [issueId]);
   
   const { data: userProjects, isLoading: loadingUserProjects } = useQuery({
     queryKey: [`/api/users/${user?.id}/projects`],
@@ -21,25 +35,48 @@ export default function Projects() {
     enabled: !!user?.id,
   });
   
+  // If issueId is present, fetch projects for that issue, otherwise fetch all projects
+  const projectsQueryKey = issueId ? [`/api/issues/${issueId}/projects`] : ["/api/projects"];
+  
   const { data: projects, isLoading: loadingAllProjects } = useQuery({
-    queryKey: ["/api/projects"],
+    queryKey: projectsQueryKey,
+  });
+  
+  // If we have an issueId, also fetch the issue details
+  const { data: issueDetails } = useQuery({
+    queryKey: [`/api/issues/${issueId}`],
+    enabled: !!issueId,
   });
 
   return (
     <div className="py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-        <h1 className="text-2xl font-semibold text-gray-900">Projects</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">
+          {issueId && issueDetails ? `Projects for ${issueDetails.title}` : "Projects"}
+        </h1>
         <p className="mt-2 text-gray-600">
-          Manage your projects and find new opportunities to contribute.
+          {issueId && issueDetails 
+            ? issueDetails.description 
+            : "Manage your projects and find new opportunities to contribute."
+          }
         </p>
+        {issueId && (
+          <div className="mt-4">
+            <Link href="/issues">
+              <Button variant="outline" size="sm" className="text-primary border-primary hover:bg-primary/10">
+                ← Back to Global Issues
+              </Button>
+            </Link>
+          </div>
+        )}
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 mt-6">
-        <Tabs defaultValue="my-projects">
+        <Tabs defaultValue={defaultTab}>
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="my-projects">My Projects</TabsTrigger>
             <TabsTrigger value="recommended">Recommended</TabsTrigger>
-            <TabsTrigger value="all">All Projects</TabsTrigger>
+            <TabsTrigger value="all">{issueId ? `${issueDetails?.title} Projects` : "All Projects"}</TabsTrigger>
           </TabsList>
           
           <TabsContent value="my-projects" className="mt-6">

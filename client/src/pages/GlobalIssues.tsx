@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
+import { Link, useLocation, useRoute } from "wouter";
 
 export default function GlobalIssues() {
   const { data: issues, isLoading } = useQuery({
@@ -63,8 +63,10 @@ export default function GlobalIssues() {
                     <div className="text-sm text-gray-500">
                       <span className="font-medium">{issue.projectCount}</span> active projects
                     </div>
-                    <Link href={`/issues/${issue.id}`}>
-                      <Button size="sm">View Projects</Button>
+                    <Link href={`/projects?issueId=${issue.id}`}>
+                      <Button size="sm" variant="outline" className="text-primary border-primary hover:bg-primary/10">
+                        View Projects
+                      </Button>
                     </Link>
                   </div>
                 </CardContent>
