@@ -79,7 +79,6 @@ export default function Sidebar() {
         </div>
         {/* Theme selector */}
         <div className="flex-shrink-0 border-t border-gray-200 p-4">
-          <p className="text-xs font-medium text-gray-500 mb-2">Customize Your Mood</p>
           <ThemeSelector className="w-full" />
         </div>
         
