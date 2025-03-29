@@ -3,8 +3,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FiDownload, FiPrinter, FiStar, FiCpu, FiUsers, FiBookOpen } from "react-icons/fi";
+import { FiDownload, FiPrinter, FiStar, FiCpu, FiUsers, FiBookOpen, FiEye } from "react-icons/fi";
 import KidsZoneBackground from "./KidsZoneBackground";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose
+} from "@/components/ui/dialog";
 
 export default function KidsZone() {
   const [age, setAge] = useState<string>("under8");
@@ -254,6 +263,29 @@ interface ActivityProps {
 }
 
 function ActivityCard({ title, description, icon, activities }: ActivityProps) {
+  const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
+  
+  // Convert activity title to file name format
+  const getFileName = (title: string) => {
+    return title.toLowerCase().replace(/\s+/g, '-');
+  };
+  
+  // Get file path for preview, download, or print
+  const getFilePath = (title: string) => {
+    return `/coloring-pages/${getFileName(title)}.svg`;
+  };
+  
+  // Handle print functionality
+  const handlePrint = (title: string) => {
+    const path = getFilePath(title);
+    const printWindow = window.open(path);
+    if (printWindow) {
+      printWindow.onload = () => {
+        printWindow.print();
+      };
+    }
+  };
+  
   return (
     <Card>
       <CardHeader>
@@ -274,12 +306,77 @@ function ActivityCard({ title, description, icon, activities }: ActivityProps) {
                 <p className="text-xs text-gray-500 capitalize">{activity.type}</p>
               </div>
               <div className="flex space-x-2">
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <FiDownload className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <FiPrinter className="h-4 w-4" />
-                </Button>
+                {activity.type === "coloring" && (
+                  <>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Preview">
+                          <FiEye className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl max-h-[80vh] overflow-auto">
+                        <DialogHeader>
+                          <DialogTitle className="text-center">{activity.title}</DialogTitle>
+                          <DialogDescription className="text-center">
+                            Preview the coloring page before downloading or printing
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="flex justify-center p-4 border rounded-lg bg-white">
+                          <img 
+                            src={getFilePath(activity.title)} 
+                            alt={activity.title} 
+                            className="max-w-full max-h-[60vh] object-contain"
+                          />
+                        </div>
+                        <div className="flex justify-center gap-4 mt-4">
+                          <a 
+                            href={getFilePath(activity.title)} 
+                            download={`${getFileName(activity.title)}.svg`}
+                          >
+                            <Button variant="outline">
+                              <FiDownload className="mr-2 h-4 w-4" />
+                              Download
+                            </Button>
+                          </a>
+                          <Button 
+                            variant="outline"
+                            onClick={() => handlePrint(activity.title)}
+                          >
+                            <FiPrinter className="mr-2 h-4 w-4" />
+                            Print
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                    <a 
+                      href={getFilePath(activity.title)} 
+                      download={`${getFileName(activity.title)}.svg`}
+                    >
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Download">
+                        <FiDownload className="h-4 w-4" />
+                      </Button>
+                    </a>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0" 
+                      title="Print"
+                      onClick={() => handlePrint(activity.title)}
+                    >
+                      <FiPrinter className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
+                {activity.type !== "coloring" && (
+                  <>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Download">
+                      <FiDownload className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Print">
+                      <FiPrinter className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
               </div>
             </li>
           ))}

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <title>Save the Oceans - Coloring Page</title>
+  <metadata>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+      <rdf:Description>
+        <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Save the Oceans Coloring Page</dc:title>
+        <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Human Potential Network</dc:creator>
+      </rdf:Description>
+    </rdf:RDF>
+  </metadata>
+  
+  <!-- Background - Ocean waves pattern to color -->
+  <path d="M0,450 C100,400 150,500 250,450 C350,400 400,500 500,450 C600,400 650,500 750,450 L800,600 L0,600 Z" 
+        fill="none" stroke="black" stroke-width="2"/>
+  <path d="M0,475 C100,425 150,525 250,475 C350,425 400,525 500,475 C600,425 650,525 750,475 L800,600 L0,600 Z" 
+        fill="none" stroke="black" stroke-width="1.5"/>
+  <path d="M0,500 C100,450 150,550 250,500 C350,450 400,550 500,500 C600,450 650,550 750,500 L800,600 L0,600 Z" 
+        fill="none" stroke="black" stroke-width="1"/>
+  
+  <!-- Sun in the sky -->
+  <circle cx="700" cy="100" r="50" fill="none" stroke="black" stroke-width="2"/>
+  <path d="M700,30 L700,10 M760,100 L780,100 M670,40 L650,20 M760,40 L780,20 M670,160 L650,180 M760,160 L780,180 M640,100 L620,100 M700,170 L700,190"
+        stroke="black" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Fish 1 -->
+  <path d="M150,350 C180,330 220,380 250,350 L150,350 Z" fill="none" stroke="black" stroke-width="2"/>
+  <circle cx="160" cy="345" r="5" fill="black"/>
+  <path d="M150,350 L130,330 L130,370 Z" fill="none" stroke="black" stroke-width="2"/>
+  
+  <!-- Fish 2 -->
+  <path d="M350,300 C380,280 420,330 450,300 L350,300 Z" fill="none" stroke="black" stroke-width="2"/>
+  <circle cx="360" cy="295" r="5" fill="black"/>
+  <path d="M350,300 L330,280 L330,320 Z" fill="none" stroke="black" stroke-width="2"/>
+  
+  <!-- Starfish -->
+  <path d="M550,380 L570,340 L600,380 L570,420 L540,380 Z" fill="none" stroke="black" stroke-width="2"/>
+  <circle cx="570" cy="380" r="10" fill="none" stroke="black" stroke-width="1"/>
+  
+  <!-- Seaweed -->
+  <path d="M100,500 C110,480 90,460 100,440 C110,420 90,400 100,380 C110,360 90,340 100,320" 
+        fill="none" stroke="black" stroke-width="2" stroke-linecap="round"/>
+  <path d="M150,500 C160,480 140,460 150,440 C160,420 140,400 150,380" 
+        fill="none" stroke="black" stroke-width="2" stroke-linecap="round"/>
+  <path d="M200,500 C210,480 190,460 200,440" 
+        fill="none" stroke="black" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Coral -->
+  <path d="M400,500 L400,450 Q420,430 440,450 L440,500" fill="none" stroke="black" stroke-width="2"/>
+  <path d="M420,500 L420,430 Q430,410 440,430 L440,500" fill="none" stroke="black" stroke-width="2"/>
+  <path d="M380,500 L380,470 Q370,450 360,470 L360,500" fill="none" stroke="black" stroke-width="2"/>
+  
+  <!-- Sea Turtle -->
+  <ellipse cx="600" cy="200" rx="50" ry="30" fill="none" stroke="black" stroke-width="2"/>
+  <circle cx="560" cy="200" r="10" fill="none" stroke="black" stroke-width="1.5"/>
+  <path d="M650,200 L670,190 L670,210 Z" fill="none" stroke="black" stroke-width="2"/>
+  <path d="M600,170 L580,140 M600,170 L620,140 M600,230 L580,260 M600,230 L620,260" 
+        fill="none" stroke="black" stroke-width="2"/>
+  
+  <!-- Message -->
+  <text x="400" y="80" font-family="Arial" font-size="32" text-anchor="middle" fill="none" stroke="black" stroke-width="1">Save Our Oceans!</text>
+  <text x="400" y="110" font-family="Arial" font-size="16" text-anchor="middle" fill="none" stroke="black" stroke-width="0.5">Color this scene to make the ocean come alive!</text>
+  
+  <!-- Water bottle -->
+  <path d="M250,150 L260,150 L270,180 L270,230 L240,230 L240,180 Z" fill="none" stroke="black" stroke-width="2"/>
+  <path d="M250,150 L250,130 L260,130 L260,150" fill="none" stroke="black" stroke-width="2"/>
+  <path d="M255,130 L255,110" fill="none" stroke="black" stroke-width="1"/>
+  
+  <!-- Recycle symbol -->
+  <path d="M300,150 L320,150 L310,130 Z" fill="none" stroke="black" stroke-width="1.5"/>
+  <path d="M320,170 L320,150 L340,160 Z" fill="none" stroke="black" stroke-width="1.5"/>
+  <path d="M300,170 L320,170 L310,190 Z" fill="none" stroke="black" stroke-width="1.5"/>
+  <circle cx="320" cy="160" r="30" fill="none" stroke="black" stroke-width="1" stroke-dasharray="3,3"/>
+</svg>

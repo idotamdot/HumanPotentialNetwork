@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <title>Friendly Forest - Coloring Page</title>
+  <metadata>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+      <rdf:Description>
+        <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Friendly Forest Coloring Page</dc:title>
+        <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Human Potential Network</dc:creator>
+      </rdf:Description>
+    </rdf:RDF>
+  </metadata>
+  
+  <!-- Sun -->
+  <circle cx="700" cy="100" r="50" fill="none" stroke="black" stroke-width="2"/>
+  <path d="M700,30 L700,10 M760,100 L780,100 M670,40 L650,20 M760,40 L780,20 M670,160 L650,180 M760,160 L780,180 M640,100 L620,100 M700,170 L700,190"
+        stroke="black" stroke-width="2" stroke-linecap="round"/>
+        
+  <!-- Hills in background -->
+  <path d="M0,400 Q200,300 400,400 Q600,300 800,400 L800,600 L0,600 Z" 
+        fill="none" stroke="black" stroke-width="1.5"/>
+  
+  <!-- Ground -->
+  <path d="M0,500 L800,500 L800,600 L0,600 Z" 
+        fill="none" stroke="black" stroke-width="2"/>
+  
+  <!-- Tree 1 - Pine -->
+  <path d="M150,500 L150,400" stroke="black" stroke-width="5"/>
+  <path d="M150,400 L120,440 L180,440 Z" fill="none" stroke="black" stroke-width="2"/>
+  <path d="M150,370 L110,420 L190,420 Z" fill="none" stroke="black" stroke-width="2"/>
+  <path d="M150,340 L100,400 L200,400 Z" fill="none" stroke="black" stroke-width="2"/>
+  
+  <!-- Tree 2 - Oak -->
+  <path d="M300,500 L300,420" stroke="black" stroke-width="5"/>
+  <circle cx="300" cy="370" r="50" fill="none" stroke="black" stroke-width="2"/>
+  <path d="M260,350 C250,330 270,310 290,320" fill="none" stroke="black" stroke-width="1"/>
+  <path d="M340,350 C350,330 330,310 310,320" fill="none" stroke="black" stroke-width="1"/>
+  <path d="M290,320 C280,310 290,290 310,290" fill="none" stroke="black" stroke-width="1"/>
+  <path d="M310,320 C320,310 310,290 290,290" fill="none" stroke="black" stroke-width="1"/>
+
+  <!-- Tree 3 - Maple -->
+  <path d="M450,500 L450,420" stroke="black" stroke-width="5"/>
+  <path d="M450,420 L420,380 L480,380 Z" fill="none" stroke="black" stroke-width="2"/>
+  <path d="M420,380 L400,340 L450,380 Z" fill="none" stroke="black" stroke-width="2"/>
+  <path d="M450,380 L500,340 L480,380 Z" fill="none" stroke="black" stroke-width="2"/>
+  <path d="M440,340 L450,300 L460,340 Z" fill="none" stroke="black" stroke-width="2"/>
+
+  <!-- Tree 4 - Cherry Blossom -->
+  <path d="M600,500 L600,420" stroke="black" stroke-width="5"/>
+  <circle cx="600" cy="380" r="40" fill="none" stroke="black" stroke-width="2"/>
+  <circle cx="580" cy="360" r="10" fill="none" stroke="black" stroke-width="1"/>
+  <circle cx="620" cy="360" r="10" fill="none" stroke="black" stroke-width="1"/>
+  <circle cx="580" cy="400" r="10" fill="none" stroke="black" stroke-width="1"/>
+  <circle cx="620" cy="400" r="10" fill="none" stroke="black" stroke-width="1"/>
+  <circle cx="600" cy="340" r="10" fill="none" stroke="black" stroke-width="1"/>
+  <circle cx="600" cy="420" r="10" fill="none" stroke="black" stroke-width="1"/>
+  <circle cx="560" cy="380" r="10" fill="none" stroke="black" stroke-width="1"/>
+  <circle cx="640" cy="380" r="10" fill="none" stroke="black" stroke-width="1"/>
+  
+  <!-- Bushes -->
+  <circle cx="200" cy="490" r="20" fill="none" stroke="black" stroke-width="1.5"/>
+  <circle cx="220" cy="480" r="20" fill="none" stroke="black" stroke-width="1.5"/>
+  <circle cx="240" cy="490" r="20" fill="none" stroke="black" stroke-width="1.5"/>
+  
+  <circle cx="500" cy="490" r="20" fill="none" stroke="black" stroke-width="1.5"/>
+  <circle cx="520" cy="480" r="20" fill="none" stroke="black" stroke-width="1.5"/>
+  <circle cx="540" cy="490" r="20" fill="none" stroke="black" stroke-width="1.5"/>
+  
+  <!-- Flower 1 -->
+  <path d="M350,480 L350,460" stroke="black" stroke-width="2"/>
+  <circle cx="350" cy="450" r="10" fill="none" stroke="black" stroke-width="1.5"/>
+  <circle cx="340" cy="450" r="5" fill="none" stroke="black" stroke-width="1"/>
+  <circle cx="360" cy="450" r="5" fill="none" stroke="black" stroke-width="1"/>
+  <circle cx="350" cy="440" r="5" fill="none" stroke="black" stroke-width="1"/>
+  <circle cx="350" cy="460" r="5" fill="none" stroke="black" stroke-width="1"/>
+  
+  <!-- Flower 2 -->
+  <path d="M400,480 L400,460" stroke="black" stroke-width="2"/>
+  <path d="M400,450 L390,440 L390,460 Z" fill="none" stroke="black" stroke-width="1.5"/>
+  <path d="M400,450 L410,440 L410,460 Z" fill="none" stroke="black" stroke-width="1.5"/>
+  <path d="M400,450 L390,440 L410,440 Z" fill="none" stroke="black" stroke-width="1.5"/>
+  <path d="M400,450 L390,460 L410,460 Z" fill="none" stroke="black" stroke-width="1.5"/>
+  <circle cx="400" cy="450" r="5" fill="none" stroke="black" stroke-width="1"/>
+  
+  <!-- Rabbit -->
+  <ellipse cx="100" cy="470" rx="20" ry="15" fill="none" stroke="black" stroke-width="1.5"/>
+  <ellipse cx="85" cy="445" rx="10" ry="20" fill="none" stroke="black" stroke-width="1.5"/>
+  <ellipse cx="85" cy="425" rx="5" ry="15" fill="none" stroke="black" stroke-width="1.5"/>
+  <circle cx="80" cy="440" r="2" fill="black"/>
+  <path d="M95,465 L115,445" fill="none" stroke="black" stroke-width="1.5"/>
+  <path d="M105,470 L125,460" fill="none" stroke="black" stroke-width="1.5"/>
+  
+  <!-- Squirrel -->
+  <ellipse cx="680" cy="480" rx="15" ry="10" fill="none" stroke="black" stroke-width="1.5"/>
+  <ellipse cx="700" cy="470" rx="10" ry="15" fill="none" stroke="black" stroke-width="1.5"/>
+  <path d="M700,455 Q710,445 700,435" fill="none" stroke="black" stroke-width="1.5"/>
+  <circle cx="695" cy="465" r="2" fill="black"/>
+  <path d="M680,470 L665,460" fill="none" stroke="black" stroke-width="1.5"/>
+  <path d="M675,480 L665,480" fill="none" stroke="black" stroke-width="1.5"/>
+  
+  <!-- Birds -->
+  <path d="M250,200 C260,190 270,200 280,190" fill="none" stroke="black" stroke-width="1.5"/>
+  <path d="M350,180 C360,170 370,180 380,170" fill="none" stroke="black" stroke-width="1.5"/>
+  <path d="M500,220 C510,210 520,220 530,210" fill="none" stroke="black" stroke-width="1.5"/>
+  
+  <!-- Butterfly -->
+  <path d="M370,300 C380,290 390,290 390,300 C390,310 380,310 370,300 Z" fill="none" stroke="black" stroke-width="1.5"/>
+  <path d="M390,300 C400,290 410,290 410,300 C410,310 400,310 390,300 Z" fill="none" stroke="black" stroke-width="1.5"/>
+  <path d="M390,300 L390,310" stroke="black" stroke-width="1"/>
+  <path d="M385,310 L390,310 L395,310" stroke="black" stroke-width="1"/>
+  
+  <!-- Title -->
+  <text x="400" y="80" font-family="Arial" font-size="32" text-anchor="middle" fill="none" stroke="black" stroke-width="1">Friendly Forest!</text>
+  <text x="400" y="110" font-family="Arial" font-size="16" text-anchor="middle" fill="none" stroke="black" stroke-width="0.5">Color the forest and all its friendly creatures!</text>
+</svg>
