@@ -14,7 +14,10 @@ import {
   governanceVotes, GovernanceVote, InsertGovernanceVote,
   governanceComments, GovernanceComment, InsertGovernanceComment,
   messages, Message, InsertMessage,
-  notifications, Notification, InsertNotification
+  notifications, Notification, InsertNotification,
+  impactTokens, ImpactToken, InsertImpactToken,
+  rewardItems, RewardItem, InsertRewardItem,
+  tokenRedemptions, TokenRedemption, InsertTokenRedemption
 } from "@shared/schema";
 
 export interface IStorage {
@@ -117,6 +120,25 @@ export interface IStorage {
   createNotification(notification: InsertNotification): Promise<Notification>;
   markNotificationAsRead(id: number): Promise<Notification>;
   markAllNotificationsAsRead(userId: number): Promise<void>;
+  
+  // Impact Token methods
+  getUserTokenHistory(userId: number): Promise<ImpactToken[]>;
+  getUserTokenBalance(userId: number): Promise<number>;
+  awardTokens(token: InsertImpactToken): Promise<ImpactToken>;
+  addUserTokens(token: InsertImpactToken): Promise<ImpactToken>;
+  
+  // Reward Item methods
+  getAllRewardItems(): Promise<RewardItem[]>;
+  getAvailableRewardItems(): Promise<RewardItem[]>;
+  getRewardItem(id: number): Promise<RewardItem | undefined>;
+  createRewardItem(item: InsertRewardItem): Promise<RewardItem>;
+  updateRewardItem(id: number, data: Partial<RewardItem>): Promise<RewardItem | undefined>;
+  
+  // Token Redemption methods
+  getUserRedemptions(userId: number): Promise<{redemption: TokenRedemption, reward: RewardItem}[]>;
+  createRedemption(redemption: InsertTokenRedemption): Promise<TokenRedemption>;
+  getRedemptionById(id: number): Promise<TokenRedemption | undefined>;
+  updateRedemptionStatus(id: number, status: string, fulfillmentDate?: Date): Promise<TokenRedemption | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -136,6 +158,9 @@ export class MemStorage implements IStorage {
   private governanceComments: Map<number, GovernanceComment>;
   private messages: Map<number, Message>;
   private notifications: Map<number, Notification>;
+  private impactTokens: Map<number, ImpactToken>;
+  private rewardItems: Map<number, RewardItem>;
+  private tokenRedemptions: Map<number, TokenRedemption>;
   
   private nextIds: {
     users: number;
@@ -154,6 +179,9 @@ export class MemStorage implements IStorage {
     governanceComments: number;
     messages: number;
     notifications: number;
+    impactTokens: number;
+    rewardItems: number;
+    tokenRedemptions: number;
   };
 
   constructor() {
@@ -173,6 +201,9 @@ export class MemStorage implements IStorage {
     this.governanceComments = new Map();
     this.messages = new Map();
     this.notifications = new Map();
+    this.impactTokens = new Map();
+    this.rewardItems = new Map();
+    this.tokenRedemptions = new Map();
     
     this.nextIds = {
       users: 1,
@@ -191,6 +222,9 @@ export class MemStorage implements IStorage {
       governanceComments: 1,
       messages: 1,
       notifications: 1,
+      impactTokens: 1,
+      rewardItems: 1,
+      tokenRedemptions: 1,
     };
     
     // Initialize with some data
@@ -866,6 +900,149 @@ export class MemStorage implements IStorage {
       await this.updateProposal(proposalId, { status: "rejected" });
     }
   }
+  
+  // Impact Token methods
+  async getUserTokenHistory(userId: number): Promise<ImpactToken[]> {
+    return Array.from(this.impactTokens.values())
+      .filter(token => token.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+  
+  async getUserTokenBalance(userId: number): Promise<number> {
+    const tokens = await this.getUserTokenHistory(userId);
+    return tokens.reduce((sum, token) => sum + token.amount, 0);
+  }
+  
+  async awardTokens(insertToken: InsertImpactToken): Promise<ImpactToken> {
+    const id = this.nextIds.impactTokens++;
+    const token: ImpactToken = {
+      ...insertToken,
+      id,
+      createdAt: new Date()
+    };
+    this.impactTokens.set(id, token);
+    
+    // Also update user's potential points
+    const user = await this.getUser(token.userId);
+    if (user) {
+      const currentPoints = user.potentialPoints || 0;
+      await this.updateUser(user.id, {
+        potentialPoints: currentPoints + token.amount
+      });
+    }
+    
+    return token;
+  }
+  
+  // Reward Item methods
+  async getAllRewardItems(): Promise<RewardItem[]> {
+    return Array.from(this.rewardItems.values());
+  }
+  
+  async getAvailableRewardItems(): Promise<RewardItem[]> {
+    return Array.from(this.rewardItems.values())
+      .filter(item => item.available);
+  }
+  
+  async getRewardItem(id: number): Promise<RewardItem | undefined> {
+    return this.rewardItems.get(id);
+  }
+  
+  async createRewardItem(insertItem: InsertRewardItem): Promise<RewardItem> {
+    const id = this.nextIds.rewardItems++;
+    const item: RewardItem = {
+      ...insertItem,
+      id,
+      createdAt: new Date()
+    };
+    this.rewardItems.set(id, item);
+    return item;
+  }
+  
+  async updateRewardItem(id: number, data: Partial<RewardItem>): Promise<RewardItem | undefined> {
+    const item = await this.getRewardItem(id);
+    if (!item) return undefined;
+    
+    const updatedItem = { ...item, ...data };
+    this.rewardItems.set(id, updatedItem);
+    return updatedItem;
+  }
+  
+  // Token Redemption methods
+  async getUserRedemptions(userId: number): Promise<{redemption: TokenRedemption, reward: RewardItem}[]> {
+    const redemptions = Array.from(this.tokenRedemptions.values())
+      .filter(redemption => redemption.userId === userId)
+      .sort((a, b) => b.redemptionDate.getTime() - a.redemptionDate.getTime());
+    
+    return redemptions.map(redemption => {
+      const reward = this.rewardItems.get(redemption.rewardItemId);
+      if (!reward) throw new Error(`Reward item not found for id: ${redemption.rewardItemId}`);
+      return { redemption, reward };
+    });
+  }
+  
+  async createRedemption(insertRedemption: InsertTokenRedemption): Promise<TokenRedemption> {
+    // Verify user has enough tokens
+    const userBalance = await this.getUserTokenBalance(insertRedemption.userId);
+    const rewardItem = await this.getRewardItem(insertRedemption.rewardItemId);
+    
+    if (!rewardItem) {
+      throw new Error(`Reward item not found for id: ${insertRedemption.rewardItemId}`);
+    }
+    
+    if (userBalance < insertRedemption.tokenAmount) {
+      throw new Error(`Insufficient token balance: ${userBalance} < ${insertRedemption.tokenAmount}`);
+    }
+    
+    if (!rewardItem.available) {
+      throw new Error(`Reward item is not available: ${rewardItem.name}`);
+    }
+    
+    // Create redemption record
+    const id = this.nextIds.tokenRedemptions++;
+    const redemption: TokenRedemption = {
+      ...insertRedemption,
+      id,
+      status: "pending",
+      redemptionDate: new Date(),
+      fulfillmentDate: null
+    };
+    this.tokenRedemptions.set(id, redemption);
+    
+    // Record the token spend as a negative amount
+    await this.awardTokens({
+      userId: insertRedemption.userId,
+      amount: -insertRedemption.tokenAmount,
+      source: "redemption",
+      sourceId: id,
+      description: `Redeemed for: ${rewardItem.name}`
+    });
+    
+    return redemption;
+  }
+  
+  async getRedemptionById(id: number): Promise<TokenRedemption | undefined> {
+    return this.tokenRedemptions.get(id);
+  }
+  
+  async updateRedemptionStatus(id: number, status: string, fulfillmentDate?: Date): Promise<TokenRedemption | undefined> {
+    const redemption = this.tokenRedemptions.get(id);
+    if (!redemption) return undefined;
+    
+    const updatedRedemption: TokenRedemption = {
+      ...redemption,
+      status,
+      fulfillmentDate: status === "fulfilled" ? fulfillmentDate || new Date() : redemption.fulfillmentDate
+    };
+    
+    this.tokenRedemptions.set(id, updatedRedemption);
+    return updatedRedemption;
+  }
+  
+  async addUserTokens(insertToken: InsertImpactToken): Promise<ImpactToken> {
+    // This is an alias for awardTokens, used for refunds and other token additions
+    return this.awardTokens(insertToken);
+  }
 
   // Initialize with sample data
   private async initData() {
@@ -1160,6 +1337,84 @@ export class MemStorage implements IStorage {
       userId: user.id,
       vote: "Yes",
       reason: "This will help us reach more seniors who need digital literacy training."
+    });
+    
+    // Create sample Impact Tokens for the user
+    await this.awardTokens({
+      userId: user.id,
+      amount: 150,
+      source: "project_completion",
+      sourceId: digitalLiteracy.id,
+      description: "Completed Digital Literacy Program milestone"
+    });
+    
+    await this.awardTokens({
+      userId: user.id,
+      amount: 75,
+      source: "governance",
+      sourceId: fundingProposal.id,
+      description: "Created and participated in governance proposal"
+    });
+    
+    await this.awardTokens({
+      userId: user.id,
+      amount: 200,
+      source: "learning_path",
+      sourceId: 1, // Placeholder for a learning path
+      description: "Completed Climate Action Learning Path"
+    });
+    
+    // Create sample reward items
+    await this.createRewardItem({
+      name: "HPN Digital Certificate",
+      description: "A digital certificate recognizing your contributions to the Human Potential Network",
+      category: "digital",
+      tokenCost: 100,
+      available: true,
+      image: "https://images.unsplash.com/photo-1523287562758-66c7fc58967f"
+    });
+    
+    await this.createRewardItem({
+      name: "30-min Mentoring Session",
+      description: "A private mentoring session with a subject matter expert of your choice",
+      category: "experience",
+      tokenCost: 200,
+      available: true,
+      image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c"
+    });
+    
+    await this.createRewardItem({
+      name: "Donate to Selected Cause",
+      description: "Donate your tokens to a cause you care about (we'll match your donation)",
+      category: "donation",
+      tokenCost: 50,
+      available: true,
+      image: "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6"
+    });
+    
+    await this.createRewardItem({
+      name: "HPN Sustainable T-shirt",
+      description: "An eco-friendly t-shirt featuring the Human Potential Network logo",
+      category: "physical",
+      tokenCost: 300,
+      available: true, 
+      image: "https://images.unsplash.com/photo-1576871337622-98d48d1cf531"
+    });
+    
+    await this.createRewardItem({
+      name: "Featured Profile Spotlight",
+      description: "Get your profile featured on the HPN homepage for one week",
+      category: "digital",
+      tokenCost: 150,
+      available: true,
+      image: "https://images.unsplash.com/photo-1614332287897-cdc485fa562d"
+    });
+    
+    // Create a sample redemption
+    await this.createRedemption({
+      userId: user.id,
+      rewardItemId: 1, // Digital Certificate
+      tokenAmount: 100
     });
     
     // Add comments to proposals

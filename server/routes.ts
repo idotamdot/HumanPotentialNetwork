@@ -15,7 +15,10 @@ import {
   insertGovernanceVoteSchema,
   insertGovernanceCommentSchema,
   insertMessageSchema,
-  insertNotificationSchema
+  insertNotificationSchema,
+  insertImpactTokenSchema,
+  insertRewardItemSchema,
+  insertTokenRedemptionSchema
 } from "@shared/schema";
 import { setupAuth } from "./auth";
 import { RecommendationService } from "./services/recommendation";
@@ -710,6 +713,193 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).end();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete learning path skill" });
+    }
+  });
+
+  // Impact Token routes
+  app.get("/api/users/:userId/tokens", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    
+    try {
+      const tokens = await storage.getUserTokenHistory(userId);
+      res.json(tokens);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user tokens" });
+    }
+  });
+  
+  app.get("/api/users/:userId/token-balance", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    
+    try {
+      const balance = await storage.getUserTokenBalance(userId);
+      res.json({ userId, balance });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get token balance" });
+    }
+  });
+  
+  app.post("/api/tokens", async (req, res) => {
+    try {
+      const tokenData = insertImpactTokenSchema.parse(req.body);
+      const token = await storage.awardTokens(tokenData);
+      res.status(201).json(token);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid token data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to award tokens" });
+    }
+  });
+  
+  // Reward Item routes
+  app.get("/api/rewards", async (req, res) => {
+    try {
+      // If ?available=true is in the query params, get only available rewards
+      if (req.query.available === "true") {
+        const rewards = await storage.getAvailableRewardItems();
+        return res.json(rewards);
+      }
+      
+      const rewards = await storage.getAllRewardItems();
+      res.json(rewards);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get reward items" });
+    }
+  });
+  
+  app.get("/api/rewards/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid reward ID" });
+    }
+    
+    const reward = await storage.getRewardItem(id);
+    if (!reward) {
+      return res.status(404).json({ message: "Reward item not found" });
+    }
+    
+    res.json(reward);
+  });
+  
+  app.post("/api/rewards", async (req, res) => {
+    try {
+      const rewardData = insertRewardItemSchema.parse(req.body);
+      const reward = await storage.createRewardItem(rewardData);
+      res.status(201).json(reward);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid reward item data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create reward item" });
+    }
+  });
+  
+  app.patch("/api/rewards/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid reward ID" });
+    }
+    
+    try {
+      const updatedReward = await storage.updateRewardItem(id, req.body);
+      if (!updatedReward) {
+        return res.status(404).json({ message: "Reward item not found" });
+      }
+      
+      res.json(updatedReward);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update reward item" });
+    }
+  });
+  
+  // Token Redemption routes
+  app.get("/api/users/:userId/redemptions", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    
+    try {
+      const redemptions = await storage.getUserRedemptions(userId);
+      res.json(redemptions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user redemptions" });
+    }
+  });
+  
+  app.post("/api/redemptions", async (req, res) => {
+    try {
+      const redemptionData = insertTokenRedemptionSchema.parse(req.body);
+      const redemption = await storage.createRedemption(redemptionData);
+      res.status(201).json(redemption);
+    } catch (error) {
+      if (error instanceof Error) {
+        return res.status(400).json({ message: error.message });
+      }
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid redemption data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create redemption" });
+    }
+  });
+  
+  app.patch("/api/redemptions/:id/status", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid redemption ID" });
+    }
+    
+    // Check for status in the body
+    if (!req.body.status || !["pending", "fulfilled", "cancelled"].includes(req.body.status)) {
+      return res.status(400).json({ message: "Invalid or missing status. Must be one of: pending, fulfilled, cancelled" });
+    }
+    
+    try {
+      // Get original redemption before update
+      const originalRedemption = await storage.getRedemptionById(id);
+      if (!originalRedemption) {
+        return res.status(404).json({ message: "Redemption not found" });
+      }
+      
+      // Check if we're cancelling a pending redemption (only refund if it's currently pending)
+      if (req.body.status === "cancelled" && originalRedemption.status === "pending") {
+        // Get the reward item to include proper description
+        const rewardItem = await storage.getRewardItem(originalRedemption.rewardItemId);
+        if (!rewardItem) {
+          return res.status(404).json({ message: "Associated reward item not found" });
+        }
+        
+        // Refund the tokens to the user
+        await storage.addUserTokens({
+          userId: originalRedemption.userId,
+          amount: originalRedemption.tokenAmount, // Positive amount for refund
+          source: "refund",
+          sourceId: originalRedemption.id,
+          description: `Refund for cancelled redemption: ${rewardItem.name}`
+        });
+      }
+      
+      const updatedRedemption = await storage.updateRedemptionStatus(
+        id, 
+        req.body.status,
+        req.body.status === "fulfilled" ? new Date() : undefined
+      );
+      
+      if (!updatedRedemption) {
+        return res.status(404).json({ message: "Redemption not found" });
+      }
+      
+      res.json(updatedRedemption);
+    } catch (error) {
+      console.error("Error updating redemption status:", error);
+      res.status(500).json({ message: "Failed to update redemption status" });
     }
   });
 

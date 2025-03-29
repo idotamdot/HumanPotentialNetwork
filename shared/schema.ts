@@ -326,3 +326,63 @@ export type InsertMessage = z.infer<typeof insertMessageSchema>;
 
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+
+// Impact Token system
+export const impactTokens = pgTable("impact_tokens", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  amount: integer("amount").notNull(),
+  source: text("source").notNull(), // project_completion, learning_path, governance, etc.
+  sourceId: integer("source_id"), // ID of the related source (project, learning path, etc.)
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertImpactTokenSchema = createInsertSchema(impactTokens).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Reward items that can be redeemed with tokens
+export const rewardItems = pgTable("reward_items", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // digital, physical, experience, donation, etc.
+  tokenCost: integer("token_cost").notNull(),
+  available: boolean("available").notNull().default(true),
+  image: text("image"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertRewardItemSchema = createInsertSchema(rewardItems).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Token redemption history
+export const tokenRedemptions = pgTable("token_redemptions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  rewardItemId: integer("reward_item_id").notNull().references(() => rewardItems.id),
+  tokenAmount: integer("token_amount").notNull(),
+  status: text("status").notNull().default("pending"), // pending, fulfilled, cancelled
+  redemptionDate: timestamp("redemption_date").notNull().defaultNow(),
+  fulfillmentDate: timestamp("fulfillment_date"),
+});
+
+export const insertTokenRedemptionSchema = createInsertSchema(tokenRedemptions).omit({
+  id: true,
+  status: true,
+  redemptionDate: true,
+  fulfillmentDate: true,
+});
+
+export type ImpactToken = typeof impactTokens.$inferSelect;
+export type InsertImpactToken = z.infer<typeof insertImpactTokenSchema>;
+
+export type RewardItem = typeof rewardItems.$inferSelect;
+export type InsertRewardItem = z.infer<typeof insertRewardItemSchema>;
+
+export type TokenRedemption = typeof tokenRedemptions.$inferSelect;
+export type InsertTokenRedemption = z.infer<typeof insertTokenRedemptionSchema>;
