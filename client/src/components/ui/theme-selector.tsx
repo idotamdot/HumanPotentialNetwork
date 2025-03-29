@@ -162,7 +162,10 @@ export function ThemeSelector({ className }: { className?: string }) {
           className="w-6 h-6 rounded-full mr-2 flex items-center justify-center" 
           style={{ backgroundColor: theme.color }}
         >
-          {theme.icon && <theme.icon className="h-3 w-3 text-white" />}
+          {theme.icon && (() => {
+            const Icon = theme.icon;
+            return <Icon className="h-3 w-3 text-white" />;
+          })()}
         </div>
         <div className="flex-1">
           <div className="text-xs font-medium">{theme.name}</div>
