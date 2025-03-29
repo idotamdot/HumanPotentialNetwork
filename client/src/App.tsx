@@ -20,9 +20,20 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
 
 function Router() {
+  const [location] = useLocation();
+  const isAuthPage = location === "/auth";
+
+  if (isAuthPage) {
+    return (
+      <Switch>
+        <Route path="/auth" component={AuthPage} />
+        <Route component={NotFound} />
+      </Switch>
+    );
+  }
+
   return (
     <Switch>
-      <Route path="/auth" component={AuthPage} />
       <ProtectedRoute path="/" component={Dashboard} />
       <ProtectedRoute path="/profile" component={Profile} />
       <ProtectedRoute path="/issues" component={GlobalIssues} />
@@ -51,6 +62,15 @@ function App() {
 }
 
 function AppContent() {
+  const [location] = useLocation();
+  const isAuthPage = location === "/auth";
+
+  // Render auth page without the app layout
+  if (isAuthPage) {
+    return <Router />;
+  }
+
+  // Render the main app with the app layout
   return (
     <AppLayout>
       <Router />
