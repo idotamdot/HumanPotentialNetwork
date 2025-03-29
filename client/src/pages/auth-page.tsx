@@ -79,8 +79,8 @@ export default function AuthPage() {
     <div className="flex min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50">
       {/* Form Side */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
-        <Card className="w-full max-w-md border-primary/20 shadow-lg">
-          <CardHeader className="space-y-1">
+        <Card className="w-full max-w-md border-primary/20 shadow-lg p-0 overflow-hidden">
+          <CardHeader className="space-y-1 pt-8 pb-2 px-6 bg-white">
             <div className="flex justify-center">
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                 <Users className="h-6 w-6 text-primary" />
@@ -93,7 +93,7 @@ export default function AuthPage() {
               Reach Your Full Potential
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6 bg-white">
             <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-2 mb-4">
                 <TabsTrigger value="login">Login</TabsTrigger>
@@ -275,7 +275,7 @@ export default function AuthPage() {
               </TabsContent>
             </Tabs>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
+          <CardFooter className="flex flex-col space-y-4 p-6 pt-0 bg-white">
             <div className="text-center text-xs text-gray-500">
               By creating an account, you agree to our Terms of Service and Privacy Policy.
             </div>
