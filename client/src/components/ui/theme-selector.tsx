@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Check, ChevronRight } from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -14,71 +14,103 @@ import {
   Sun, // Optimistic
 } from "lucide-react";
 
-import { setThemeColor, saveTheme, getTheme, MoodTheme } from "@/lib/utils";
+type SimplifiedMoodTheme = {
+  name: string;
+  value: string;
+  color: string;
+  iconName: string;
+  description: string;
+};
 
-// Define themes but don't export the constant
-const moodThemes = [
+// Define themes without storing the icon components directly
+const moodThemes: SimplifiedMoodTheme[] = [
   {
     name: "Energetic",
     value: "energetic",
     color: "#FF4500",
-    icon: Flame,
+    iconName: "flame",
     description: "High-energy, vibrant, and perfect for getting things done with enthusiasm."
   },
   {
     name: "Playful",
     value: "playful",
     color: "#8A2BE2", 
-    icon: Laugh,
+    iconName: "laugh",
     description: "Fun, whimsical, and great for creative exploration and imagination."
   },
   {
     name: "Focused",
     value: "focused",
     color: "#1E90FF",
-    icon: Coffee,
+    iconName: "coffee",
     description: "Clear, sharp, and designed for deep concentration and analysis."
   },
   {
     name: "Calm",
     value: "calm",
     color: "#00CED1",
-    icon: CloudRain,
+    iconName: "cloudRain", 
     description: "Serene, peaceful, and excellent for relaxation and mindfulness."
   },
   {
     name: "Creative",
     value: "creative",
     color: "#FF1493",
-    icon: Zap,
+    iconName: "zap",
     description: "Inspiring, bright, and ideal for brainstorming and ideation."
   },
   {
     name: "Balanced",
     value: "balanced",
     color: "#32CD32",
-    icon: Scale,
+    iconName: "scale",
     description: "Harmonious, well-rounded, and perfect for everyday productivity."
   },
   {
     name: "Reflective",
     value: "reflective",
     color: "#4B0082",
-    icon: Moon,
+    iconName: "moon",
     description: "Deep, thoughtful, and conducive to introspection and planning."
   },
   {
     name: "Optimistic",
     value: "optimistic",
     color: "#FFA500",
-    icon: Sun,
+    iconName: "sun",
     description: "Bright, hopeful, and encouraging a positive outlook."
   },
 ];
 
+// Helper function to get icon component by name
+function getIconByName(iconName: string) {
+  switch (iconName) {
+    case "flame": return Flame;
+    case "laugh": return Laugh;
+    case "coffee": return Coffee;
+    case "cloudRain": return CloudRain;
+    case "zap": return Zap;
+    case "scale": return Scale;
+    case "moon": return Moon;
+    case "sun": return Sun;
+    default: return Flame;
+  }
+}
+
+// Save theme without the component
+function saveThemeToStorage(theme: SimplifiedMoodTheme) {
+  localStorage.setItem("hpn-user-mood-theme", JSON.stringify(theme));
+}
+
+// Get theme from storage
+function getThemeFromStorage(): SimplifiedMoodTheme | null {
+  const saved = localStorage.getItem("hpn-user-mood-theme");
+  return saved ? JSON.parse(saved) : null;
+}
+
 export function ThemeSelector({ className }: { className?: string }) {
-  const [theme, setTheme] = useState<MoodTheme>(() => {
-    const savedTheme = getTheme();
+  const [theme, setTheme] = useState<SimplifiedMoodTheme>(() => {
+    const savedTheme = getThemeFromStorage();
     return savedTheme || moodThemes[5]; // Default to Balanced
   });
   
@@ -86,15 +118,15 @@ export function ThemeSelector({ className }: { className?: string }) {
   
   useEffect(() => {
     // Apply any saved theme on component mount
-    const savedTheme = getTheme();
+    const savedTheme = getThemeFromStorage();
     if (savedTheme) {
       applyTheme(savedTheme);
     }
   }, []);
 
-  const applyTheme = (selectedTheme: MoodTheme) => {
+  const applyTheme = (selectedTheme: SimplifiedMoodTheme) => {
     // Apply color to primary variable
-    setThemeColor(selectedTheme.color);
+    document.documentElement.style.setProperty("--primary", selectedTheme.color);
     
     // Create glow effects based on the theme
     document.documentElement.style.setProperty('--theme-glow', `0 0 15px ${selectedTheme.color}80`);
@@ -116,12 +148,12 @@ export function ThemeSelector({ className }: { className?: string }) {
     document.body.classList.add(`theme-${selectedTheme.value}`);
   };
 
-  const handleThemeChange = (selectedTheme: MoodTheme) => {
+  const handleThemeChange = (selectedTheme: SimplifiedMoodTheme) => {
     setTheme(selectedTheme);
     
     // Apply theme changes
     applyTheme(selectedTheme);
-    saveTheme(selectedTheme);
+    saveThemeToStorage(selectedTheme);
     
     toast({
       title: `Mood changed to ${selectedTheme.name}`,
@@ -145,7 +177,6 @@ export function ThemeSelector({ className }: { className?: string }) {
               style={{
                 backgroundColor: moodTheme.color
               }}
-              // This custom property is handled by Tailwind's ring utilities
               onClick={() => handleThemeChange(moodTheme)}
               title={moodTheme.name}
             >
@@ -162,9 +193,9 @@ export function ThemeSelector({ className }: { className?: string }) {
           className="w-6 h-6 rounded-full mr-2 flex items-center justify-center" 
           style={{ backgroundColor: theme.color }}
         >
-          {theme.icon && (() => {
-            const Icon = theme.icon;
-            return <Icon className="h-3 w-3 text-white" />;
+          {(() => {
+            const IconComponent = getIconByName(theme.iconName);
+            return <IconComponent className="h-3 w-3 text-white" />;
           })()}
         </div>
         <div className="flex-1">
