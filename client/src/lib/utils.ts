@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { ComponentType } from "react";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -10,7 +11,7 @@ export interface MoodTheme {
   name: string;
   value: string;
   color: string;
-  icon: React.ComponentType<any>;
+  icon: ComponentType<any>;
   description?: string;
 }
 
