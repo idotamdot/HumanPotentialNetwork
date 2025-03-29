@@ -86,8 +86,8 @@ export default function AuthPage() {
                 <Users className="h-6 w-6 text-primary" />
               </div>
             </div>
-            <CardTitle className="text-3xl text-center font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-600 mb-1">
-              Human Potential Network
+            <CardTitle className="text-3xl text-center font-bold mb-1">
+              <span className="text-primary">Human Potential Network</span>
             </CardTitle>
             <CardDescription className="text-center text-lg text-gray-700">
               Reach Your Full Potential
