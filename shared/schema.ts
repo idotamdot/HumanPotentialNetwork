@@ -288,3 +288,41 @@ export type InsertGovernanceVote = z.infer<typeof insertGovernanceVoteSchema>;
 
 export type GovernanceComment = typeof governanceComments.$inferSelect;
 export type InsertGovernanceComment = z.infer<typeof insertGovernanceCommentSchema>;
+
+// Messages between users
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  senderId: integer("sender_id").notNull().references(() => users.id),
+  recipientId: integer("recipient_id").notNull().references(() => users.id),
+  content: text("content").notNull(),
+  read: boolean("read").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertMessageSchema = createInsertSchema(messages).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Notifications for users
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  type: text("type").notNull(), // e.g., 'message', 'project_update', 'governance_vote'
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  read: boolean("read").notNull().default(false),
+  linkUrl: text("link_url"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = z.infer<typeof insertMessageSchema>;
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;

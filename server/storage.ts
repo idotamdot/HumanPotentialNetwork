@@ -12,7 +12,9 @@ import {
   learningPathSkills, LearningPathSkill, InsertLearningPathSkill,
   governanceProposals, GovernanceProposal, InsertGovernanceProposal,
   governanceVotes, GovernanceVote, InsertGovernanceVote,
-  governanceComments, GovernanceComment, InsertGovernanceComment
+  governanceComments, GovernanceComment, InsertGovernanceComment,
+  messages, Message, InsertMessage,
+  notifications, Notification, InsertNotification
 } from "@shared/schema";
 
 export interface IStorage {
@@ -100,6 +102,21 @@ export interface IStorage {
   getComment(id: number): Promise<GovernanceComment | undefined>;
   createComment(comment: InsertGovernanceComment): Promise<GovernanceComment>;
   deleteComment(id: number): Promise<boolean>;
+  
+  // Message methods
+  getUserMessages(userId: number): Promise<Message[]>;
+  getConversation(user1Id: number, user2Id: number): Promise<Message[]>;
+  getUnreadMessageCount(userId: number): Promise<number>;
+  sendMessage(message: InsertMessage): Promise<Message>;
+  markMessageAsRead(id: number): Promise<Message>;
+  markAllMessagesAsRead(userId: number): Promise<void>;
+  
+  // Notification methods
+  getUserNotifications(userId: number): Promise<Notification[]>;
+  getUnreadNotificationCount(userId: number): Promise<number>;
+  createNotification(notification: InsertNotification): Promise<Notification>;
+  markNotificationAsRead(id: number): Promise<Notification>;
+  markAllNotificationsAsRead(userId: number): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -117,6 +134,8 @@ export class MemStorage implements IStorage {
   private governanceProposals: Map<number, GovernanceProposal>;
   private governanceVotes: Map<number, GovernanceVote>;
   private governanceComments: Map<number, GovernanceComment>;
+  private messages: Map<number, Message>;
+  private notifications: Map<number, Notification>;
   
   private nextIds: {
     users: number;
@@ -133,6 +152,8 @@ export class MemStorage implements IStorage {
     governanceProposals: number;
     governanceVotes: number;
     governanceComments: number;
+    messages: number;
+    notifications: number;
   };
 
   constructor() {
@@ -150,6 +171,8 @@ export class MemStorage implements IStorage {
     this.governanceProposals = new Map();
     this.governanceVotes = new Map();
     this.governanceComments = new Map();
+    this.messages = new Map();
+    this.notifications = new Map();
     
     this.nextIds = {
       users: 1,
@@ -166,6 +189,8 @@ export class MemStorage implements IStorage {
       governanceProposals: 1,
       governanceVotes: 1,
       governanceComments: 1,
+      messages: 1,
+      notifications: 1,
     };
     
     // Initialize with some data
@@ -684,6 +709,111 @@ export class MemStorage implements IStorage {
   
   async deleteComment(id: number): Promise<boolean> {
     return this.governanceComments.delete(id);
+  }
+  
+  // Message methods
+  async getUserMessages(userId: number): Promise<Message[]> {
+    return Array.from(this.messages.values()).filter(
+      (message) => message.senderId === userId || message.recipientId === userId
+    ).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()); // Newest first
+  }
+  
+  async getConversation(user1Id: number, user2Id: number): Promise<Message[]> {
+    return Array.from(this.messages.values()).filter(
+      (message) => 
+        (message.senderId === user1Id && message.recipientId === user2Id) ||
+        (message.senderId === user2Id && message.recipientId === user1Id)
+    ).sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()); // Oldest first in conversations
+  }
+  
+  async getUnreadMessageCount(userId: number): Promise<number> {
+    return Array.from(this.messages.values()).filter(
+      (message) => message.recipientId === userId && !message.read
+    ).length;
+  }
+  
+  async sendMessage(message: InsertMessage): Promise<Message> {
+    const id = this.nextIds.messages++;
+    const newMessage: Message = {
+      ...message,
+      id,
+      read: false,
+      createdAt: new Date()
+    };
+    this.messages.set(id, newMessage);
+    
+    // Create a notification for the recipient
+    await this.createNotification({
+      userId: message.recipientId,
+      type: 'message',
+      title: 'New Message',
+      content: `You have a new message from ${(await this.getUser(message.senderId))?.name || 'a user'}`,
+      read: false,
+      linkUrl: `/messages/${message.senderId}`
+    });
+    
+    return newMessage;
+  }
+  
+  async markMessageAsRead(id: number): Promise<Message> {
+    const message = this.messages.get(id);
+    if (!message) throw new Error(`Message not found with id: ${id}`);
+    
+    const updatedMessage = { ...message, read: true };
+    this.messages.set(id, updatedMessage);
+    return updatedMessage;
+  }
+  
+  async markAllMessagesAsRead(userId: number): Promise<void> {
+    const userMessages = Array.from(this.messages.values()).filter(
+      (message) => message.recipientId === userId && !message.read
+    );
+    
+    userMessages.forEach(message => {
+      this.messages.set(message.id, { ...message, read: true });
+    });
+  }
+  
+  // Notification methods
+  async getUserNotifications(userId: number): Promise<Notification[]> {
+    return Array.from(this.notifications.values())
+      .filter(notification => notification.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()); // Newest first
+  }
+  
+  async getUnreadNotificationCount(userId: number): Promise<number> {
+    return Array.from(this.notifications.values())
+      .filter(notification => notification.userId === userId && !notification.read)
+      .length;
+  }
+  
+  async createNotification(notification: InsertNotification): Promise<Notification> {
+    const id = this.nextIds.notifications++;
+    const newNotification: Notification = {
+      ...notification,
+      id,
+      createdAt: new Date()
+    };
+    this.notifications.set(id, newNotification);
+    return newNotification;
+  }
+  
+  async markNotificationAsRead(id: number): Promise<Notification> {
+    const notification = this.notifications.get(id);
+    if (!notification) throw new Error(`Notification not found with id: ${id}`);
+    
+    const updatedNotification = { ...notification, read: true };
+    this.notifications.set(id, updatedNotification);
+    return updatedNotification;
+  }
+  
+  async markAllNotificationsAsRead(userId: number): Promise<void> {
+    const userNotifications = Array.from(this.notifications.values())
+      .filter(notification => notification.userId === userId && !notification.read);
+    
+    userNotifications.forEach(notification => {
+      this.notifications.set(notification.id, { ...notification, read: true });
+    });
   }
   
   // Helper method to check proposal status

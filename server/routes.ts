@@ -13,7 +13,9 @@ import {
   insertLearningPathSkillSchema,
   insertGovernanceProposalSchema,
   insertGovernanceVoteSchema,
-  insertGovernanceCommentSchema
+  insertGovernanceCommentSchema,
+  insertMessageSchema,
+  insertNotificationSchema
 } from "@shared/schema";
 import { setupAuth } from "./auth";
 import { RecommendationService } from "./services/recommendation";
@@ -711,6 +713,162 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Message routes
+  app.get("/api/users/:userId/messages", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    
+    try {
+      const messages = await storage.getUserMessages(userId);
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user messages" });
+    }
+  });
+  
+  app.get("/api/messages/conversation/:user1Id/:user2Id", async (req, res) => {
+    const user1Id = parseInt(req.params.user1Id);
+    const user2Id = parseInt(req.params.user2Id);
+    
+    if (isNaN(user1Id) || isNaN(user2Id)) {
+      return res.status(400).json({ message: "Invalid user IDs" });
+    }
+    
+    try {
+      const conversation = await storage.getConversation(user1Id, user2Id);
+      res.json(conversation);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get conversation" });
+    }
+  });
+  
+  app.get("/api/users/:userId/messages/unread-count", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    
+    try {
+      const count = await storage.getUnreadMessageCount(userId);
+      res.json({ count });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get unread message count" });
+    }
+  });
+  
+  app.post("/api/messages", async (req, res) => {
+    try {
+      const messageData = insertMessageSchema.parse(req.body);
+      const message = await storage.sendMessage(messageData);
+      res.status(201).json(message);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid message data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+  
+  app.patch("/api/messages/:id/read", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid message ID" });
+    }
+    
+    try {
+      const message = await storage.markMessageAsRead(id);
+      res.json(message);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to mark message as read" });
+    }
+  });
+  
+  app.post("/api/users/:userId/messages/mark-all-read", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    
+    try {
+      await storage.markAllMessagesAsRead(userId);
+      res.status(200).json({ message: "All messages marked as read" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to mark all messages as read" });
+    }
+  });
+  
+  // Notification routes
+  app.get("/api/users/:userId/notifications", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    
+    try {
+      const notifications = await storage.getUserNotifications(userId);
+      res.json(notifications);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user notifications" });
+    }
+  });
+  
+  app.get("/api/users/:userId/notifications/unread-count", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    
+    try {
+      const count = await storage.getUnreadNotificationCount(userId);
+      res.json({ count });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get unread notification count" });
+    }
+  });
+  
+  app.post("/api/notifications", async (req, res) => {
+    try {
+      const notificationData = insertNotificationSchema.parse(req.body);
+      const notification = await storage.createNotification(notificationData);
+      res.status(201).json(notification);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid notification data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create notification" });
+    }
+  });
+  
+  app.patch("/api/notifications/:id/read", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid notification ID" });
+    }
+    
+    try {
+      const notification = await storage.markNotificationAsRead(id);
+      res.json(notification);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to mark notification as read" });
+    }
+  });
+  
+  app.post("/api/users/:userId/notifications/mark-all-read", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    
+    try {
+      await storage.markAllNotificationsAsRead(userId);
+      res.status(200).json({ message: "All notifications marked as read" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to mark all notifications as read" });
+    }
+  });
+  
   const httpServer = createServer(app);
   return httpServer;
 }
