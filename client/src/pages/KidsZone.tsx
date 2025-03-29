@@ -270,14 +270,26 @@ function ActivityCard({ title, description, icon, activities }: ActivityProps) {
     return title.toLowerCase().replace(/\s+/g, '-');
   };
   
-  // Get file path for preview, download, or print
-  const getFilePath = (title: string) => {
-    return `/coloring-pages/${getFileName(title)}.svg`;
+  // Get file path for preview, download, or print based on activity type
+  const getFilePath = (title: string, type: string) => {
+    switch (type) {
+      case "coloring":
+        return `/coloring-pages/${getFileName(title)}.svg`;
+      case "matching":
+      case "puzzle":
+      case "memory":
+      case "game":
+        return `/games/${getFileName(title)}.svg`;
+      case "story":
+        return `/stories/${getFileName(title)}.svg`;
+      default:
+        return `/coloring-pages/${getFileName(title)}.svg`;
+    }
   };
   
   // Handle print functionality
-  const handlePrint = (title: string) => {
-    const path = getFilePath(title);
+  const handlePrint = (title: string, type: string) => {
+    const path = getFilePath(title, type);
     const printWindow = window.open(path);
     if (printWindow) {
       printWindow.onload = () => {
@@ -323,14 +335,14 @@ function ActivityCard({ title, description, icon, activities }: ActivityProps) {
                         </DialogHeader>
                         <div className="flex justify-center p-4 border rounded-lg bg-white">
                           <img 
-                            src={getFilePath(activity.title)} 
+                            src={getFilePath(activity.title, activity.type)} 
                             alt={activity.title} 
                             className="max-w-full max-h-[60vh] object-contain"
                           />
                         </div>
                         <div className="flex justify-center gap-4 mt-4">
                           <a 
-                            href={getFilePath(activity.title)} 
+                            href={getFilePath(activity.title, activity.type)} 
                             download={`${getFileName(activity.title)}.svg`}
                           >
                             <Button variant="outline">
@@ -340,7 +352,7 @@ function ActivityCard({ title, description, icon, activities }: ActivityProps) {
                           </a>
                           <Button 
                             variant="outline"
-                            onClick={() => handlePrint(activity.title)}
+                            onClick={() => handlePrint(activity.title, activity.type)}
                           >
                             <FiPrinter className="mr-2 h-4 w-4" />
                             Print
@@ -349,7 +361,7 @@ function ActivityCard({ title, description, icon, activities }: ActivityProps) {
                       </DialogContent>
                     </Dialog>
                     <a 
-                      href={getFilePath(activity.title)} 
+                      href={getFilePath(activity.title, activity.type)} 
                       download={`${getFileName(activity.title)}.svg`}
                     >
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Download">
@@ -361,13 +373,78 @@ function ActivityCard({ title, description, icon, activities }: ActivityProps) {
                       size="sm" 
                       className="h-8 w-8 p-0" 
                       title="Print"
-                      onClick={() => handlePrint(activity.title)}
+                      onClick={() => handlePrint(activity.title, activity.type)}
                     >
                       <FiPrinter className="h-4 w-4" />
                     </Button>
                   </>
                 )}
-                {activity.type !== "coloring" && (
+                {(activity.type === "matching" || activity.type === "puzzle" || activity.type === "memory" || activity.type === "story") && (
+                  <>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Preview">
+                          <FiEye className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl max-h-[80vh] overflow-auto">
+                        <DialogHeader>
+                          <DialogTitle className="text-center">{activity.title}</DialogTitle>
+                          <DialogDescription className="text-center">
+                            Preview the {activity.type === "story" ? "story" : "game"} before downloading or printing
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="flex justify-center p-4 border rounded-lg bg-white">
+                          <img 
+                            src={getFilePath(activity.title, activity.type)} 
+                            alt={activity.title} 
+                            className="max-w-full max-h-[60vh] object-contain"
+                          />
+                        </div>
+                        <div className="flex justify-center gap-4 mt-4">
+                          <a 
+                            href={getFilePath(activity.title, activity.type)} 
+                            download={`${getFileName(activity.title)}.svg`}
+                          >
+                            <Button variant="outline">
+                              <FiDownload className="mr-2 h-4 w-4" />
+                              Download
+                            </Button>
+                          </a>
+                          <Button 
+                            variant="outline"
+                            onClick={() => handlePrint(activity.title, activity.type)}
+                          >
+                            <FiPrinter className="mr-2 h-4 w-4" />
+                            Print
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                    <a 
+                      href={getFilePath(activity.title, activity.type)} 
+                      download={`${getFileName(activity.title)}.svg`}
+                    >
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Download">
+                        <FiDownload className="h-4 w-4" />
+                      </Button>
+                    </a>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0" 
+                      title="Print"
+                      onClick={() => handlePrint(activity.title, activity.type)}
+                    >
+                      <FiPrinter className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
+                {activity.type !== "coloring" && 
+                 activity.type !== "matching" && 
+                 activity.type !== "puzzle" && 
+                 activity.type !== "memory" && 
+                 activity.type !== "story" && (
                   <>
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Download">
                       <FiDownload className="h-4 w-4" />

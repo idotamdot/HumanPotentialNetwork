@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <title>Animal Friends - Memory Game</title>
+  <metadata>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+      <rdf:Description>
+        <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Animal Friends Memory Game</dc:title>
+        <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Human Potential Network</dc:creator>
+      </rdf:Description>
+    </rdf:RDF>
+  </metadata>
+  
+  <!-- Background -->
+  <rect x="0" y="0" width="800" height="600" fill="white" stroke="black" stroke-width="2"/>
+  
+  <!-- Title -->
+  <text x="400" y="50" font-family="Arial" font-size="32" text-anchor="middle" fill="black">Animal Friends Memory Game</text>
+  <text x="400" y="80" font-family="Arial" font-size="16" text-anchor="middle" fill="black">Print, cut out the cards, and match the animals to their habitat!</text>
+  
+  <!-- First row - Animal Cards -->
+  <g transform="translate(100, 180)">
+    <!-- Card 1 - Elephant -->
+    <rect x="0" y="0" width="100" height="140" rx="10" ry="10" fill="none" stroke="black" stroke-width="2"/>
+    <circle cx="50" cy="50" r="40" fill="none" stroke="black" stroke-width="1.5"/>
+    <text x="50" y="50" font-family="Arial" font-size="12" text-anchor="middle" fill="black">Cut here</text>
+    <path d="M50,80 L50,110 L25,120 L75,120 Z" fill="none" stroke="black" stroke-width="1.5"/>
+    <path d="M30,70 Q20,45 30,40 Q40,35 35,65" fill="none" stroke="black" stroke-width="1.5"/>
+    <ellipse cx="40" cy="60" rx="3" ry="3" fill="black" stroke="none"/>
+  </g>
+  
+  <g transform="translate(250, 180)">
+    <!-- Card 2 - Fish -->
+    <rect x="0" y="0" width="100" height="140" rx="10" ry="10" fill="none" stroke="black" stroke-width="2"/>
+    <circle cx="50" cy="50" r="40" fill="none" stroke="black" stroke-width="1.5"/>
+    <text x="50" y="50" font-family="Arial" font-size="12" text-anchor="middle" fill="black">Cut here</text>
+    <path d="M30,80 Q50,65 70,80 Q50,95 30,80 Z" fill="none" stroke="black" stroke-width="1.5"/>
+    <path d="M70,80 L80,90 L80,70 Z" fill="none" stroke="black" stroke-width="1.5"/>
+    <ellipse cx="40" cy="75" rx="3" ry="3" fill="black" stroke="none"/>
+  </g>
+  
+  <g transform="translate(400, 180)">
+    <!-- Card 3 - Bird -->
+    <rect x="0" y="0" width="100" height="140" rx="10" ry="10" fill="none" stroke="black" stroke-width="2"/>
+    <circle cx="50" cy="50" r="40" fill="none" stroke="black" stroke-width="1.5"/>
+    <text x="50" y="50" font-family="Arial" font-size="12" text-anchor="middle" fill="black">Cut here</text>
+    <ellipse cx="50" cy="85" rx="20" ry="15" fill="none" stroke="black" stroke-width="1.5"/>
+    <path d="M30,85 Q50,65 70,85" fill="none" stroke="black" stroke-width="1.5"/>
+    <path d="M35,80 L25,70 M65,80 L75,70" fill="none" stroke="black" stroke-width="1.5"/>
+    <path d="M50,85 L50,95 L45,105 M50,95 L55,105" fill="none" stroke="black" stroke-width="1.5"/>
+    <ellipse cx="45" cy="80" rx="3" ry="3" fill="black" stroke="none"/>
+    <ellipse cx="55" cy="80" rx="3" ry="3" fill="black" stroke="none"/>
+  </g>
+  
+  <g transform="translate(550, 180)">
+    <!-- Card 4 - Frog -->
+    <rect x="0" y="0" width="100" height="140" rx="10" ry="10" fill="none" stroke="black" stroke-width="2"/>
+    <circle cx="50" cy="50" r="40" fill="none" stroke="black" stroke-width="1.5"/>
+    <text x="50" y="50" font-family="Arial" font-size="12" text-anchor="middle" fill="black">Cut here</text>
+    <ellipse cx="50" cy="85" rx="25" ry="15" fill="none" stroke="black" stroke-width="1.5"/>
+    <path d="M30,85 L25,105 M70,85 L75,105" fill="none" stroke="black" stroke-width="1.5"/>
+    <ellipse cx="40" cy="75" rx="8" ry="5" fill="none" stroke="black" stroke-width="1.5"/>
+    <ellipse cx="60" cy="75" rx="8" ry="5" fill="none" stroke="black" stroke-width="1.5"/>
+    <ellipse cx="40" cy="75" rx="3" ry="3" fill="black" stroke="none"/>
+    <ellipse cx="60" cy="75" rx="3" ry="3" fill="black" stroke="none"/>
+  </g>
+  
+  <!-- Second row - Habitat Cards -->
+  <g transform="translate(100, 350)">
+    <!-- Card 5 - Savanna -->
+    <rect x="0" y="0" width="100" height="140" rx="10" ry="10" fill="none" stroke="black" stroke-width="2"/>
+    <circle cx="50" cy="50" r="40" fill="none" stroke="black" stroke-width="1.5"/>
+    <text x="50" y="50" font-family="Arial" font-size="12" text-anchor="middle" fill="black">Cut here</text>
+    <path d="M20,100 L80,100" stroke="black" stroke-width="1.5"/>
+    <path d="M30,100 L30,90 Q40,80 50,90 Q60,80 70,90 L70,100" fill="none" stroke="black" stroke-width="1.5"/>
+    <path d="M45,90 L45,80 M55,90 L55,80" fill="none" stroke="black" stroke-width="1"/>
+    <path d="M40,80 L50,65 L60,80" fill="none" stroke="black" stroke-width="1"/>
+  </g>
+  
+  <g transform="translate(250, 350)">
+    <!-- Card 6 - Ocean -->
+    <rect x="0" y="0" width="100" height="140" rx="10" ry="10" fill="none" stroke="black" stroke-width="2"/>
+    <circle cx="50" cy="50" r="40" fill="none" stroke="black" stroke-width="1.5"/>
+    <text x="50" y="50" font-family="Arial" font-size="12" text-anchor="middle" fill="black">Cut here</text>
+    <path d="M20,80 Q35,75 50,80 Q65,85 80,80" fill="none" stroke="black" stroke-width="1.5"/>
+    <path d="M20,90 Q35,85 50,90 Q65,95 80,90" fill="none" stroke="black" stroke-width="1.5"/>
+    <path d="M20,100 Q35,95 50,100 Q65,105 80,100" fill="none" stroke="black" stroke-width="1.5"/>
+    <path d="M30,75 L30,65 M60,85 L60,75" fill="none" stroke="black" stroke-width="1"/>
+  </g>
+  
+  <g transform="translate(400, 350)">
+    <!-- Card 7 - Sky -->
+    <rect x="0" y="0" width="100" height="140" rx="10" ry="10" fill="none" stroke="black" stroke-width="2"/>
+    <circle cx="50" cy="50" r="40" fill="none" stroke="black" stroke-width="1.5"/>
+    <text x="50" y="50" font-family="Arial" font-size="12" text-anchor="middle" fill="black">Cut here</text>
+    <path d="M30,70 Q40,65 50,70 Q60,75 70,70" fill="none" stroke="black" stroke-width="1.5"/>
+    <path d="M40,85 Q50,80 60,85 Q70,90 80,85" fill="none" stroke="black" stroke-width="1.5"/>
+    <path d="M20,100 Q30,95 40,100 Q50,105 60,100" fill="none" stroke="black" stroke-width="1.5"/>
+    <circle cx="70" cy="60" r="10" fill="none" stroke="black" stroke-width="1"/>
+  </g>
+  
+  <g transform="translate(550, 350)">
+    <!-- Card 8 - Pond -->
+    <rect x="0" y="0" width="100" height="140" rx="10" ry="10" fill="none" stroke="black" stroke-width="2"/>
+    <circle cx="50" cy="50" r="40" fill="none" stroke="black" stroke-width="1.5"/>
+    <text x="50" y="50" font-family="Arial" font-size="12" text-anchor="middle" fill="black">Cut here</text>
+    <ellipse cx="50" cy="90" rx="30" ry="15" fill="none" stroke="black" stroke-width="1.5"/>
+    <path d="M30,85 Q40,80 50,85 Q60,90 70,85" fill="none" stroke="black" stroke-width="1"/>
+    <path d="M20,105 L80,105" stroke="black" stroke-width="1.5"/>
+    <path d="M35,105 L35,95 M45,105 L45,95 M55,105 L55,95 M65,105 L65,95" fill="none" stroke="black" stroke-width="1"/>
+  </g>
+  
+  <!-- Instructions -->
+  <foreignObject x="100" y="510" width="600" height="70">
+    <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Arial; font-size: 14px; line-height: 1.4;">
+      <p style="text-align: center;"><strong>How to Play:</strong></p>
+      <ol style="padding-left: 30px;">
+        <li>Print this page and cut out all 8 cards.</li>
+        <li>Mix them up and place them face down.</li>
+        <li>Take turns flipping over two cards - try to match each animal with its correct habitat!</li>
+        <li>When you find a match, keep those cards. The player with the most matches wins!</li>
+      </ol>
+    </div>
+  </foreignObject>
+</svg>

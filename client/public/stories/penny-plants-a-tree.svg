@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <title>Penny Plants a Tree - Story</title>
+  <metadata>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+      <rdf:Description>
+        <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Penny Plants a Tree Story</dc:title>
+        <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Human Potential Network</dc:creator>
+      </rdf:Description>
+    </rdf:RDF>
+  </metadata>
+  
+  <!-- Background -->
+  <rect x="0" y="0" width="800" height="600" fill="white" stroke="black" stroke-width="2"/>
+  
+  <!-- Title -->
+  <text x="400" y="40" font-family="Arial" font-size="28" text-anchor="middle" fill="black" font-weight="bold">Penny Plants a Tree</text>
+  
+  <!-- Story Content -->
+  <foreignObject x="50" y="60" width="700" height="200">
+    <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Arial; font-size: 14px; line-height: 1.5;">
+      <p>Penny was a curious little girl who loved nature. One day, she found a small acorn in the park.</p>
+      <p>"What's this?" Penny asked her mom.</p>
+      <p>"That's an acorn, a seed from an oak tree," Mom explained. "If you plant it and take care of it, it will grow into a big tree someday."</p>
+      <p>Penny's eyes grew wide. "Can we plant it in our yard?" she asked excitedly.</p>
+      <p>"Of course," Mom smiled. "Trees help clean our air and give homes to animals and birds."</p>
+    </div>
+  </foreignObject>
+  
+  <!-- Illustration 1: Penny finding acorn -->
+  <g transform="translate(150, 280)">
+    <circle cx="0" cy="0" r="30" fill="none" stroke="black" stroke-width="1.5"/> <!-- Head -->
+    <path d="M-10,-10 L-5,-10 M10,-10 L5,-10" stroke="black" stroke-width="1.5"/> <!-- Eyes -->
+    <path d="M0,5 C-5,5 5,5 0,10" fill="none" stroke="black" stroke-width="1.5"/> <!-- Smile -->
+    <path d="M-30,-30 Q0,-60 30,-30" fill="none" stroke="black" stroke-width="1.5"/> <!-- Hair -->
+    <path d="M0,30 L0,80" stroke="black" stroke-width="2"/> <!-- Body -->
+    <path d="M0,40 L-30,70 M0,40 L30,70" stroke="black" stroke-width="2"/> <!-- Arms -->
+    <path d="M0,80 L-20,120 M0,80 L20,120" stroke="black" stroke-width="2"/> <!-- Legs -->
+    <circle cx="20" cy="90" r="5" fill="none" stroke="black" stroke-width="1.5"/> <!-- Acorn -->
+  </g>
+  
+  <!-- Illustration 2: Planting the acorn -->
+  <g transform="translate(400, 280)">
+    <circle cx="0" cy="0" r="30" fill="none" stroke="black" stroke-width="1.5"/> <!-- Head -->
+    <path d="M-10,-10 L-5,-10 M10,-10 L5,-10" stroke="black" stroke-width="1.5"/> <!-- Eyes -->
+    <path d="M0,5 C-5,5 5,5 0,10" fill="none" stroke="black" stroke-width="1.5"/> <!-- Smile -->
+    <path d="M-30,-30 Q0,-60 30,-30" fill="none" stroke="black" stroke-width="1.5"/> <!-- Hair -->
+    <path d="M0,30 L0,70" stroke="black" stroke-width="2"/> <!-- Body -->
+    <path d="M0,40 L-40,60 M0,40 L30,70" stroke="black" stroke-width="2"/> <!-- Arms -->
+    <path d="M0,70 L-15,100 M0,70 L15,100" stroke="black" stroke-width="2"/> <!-- Legs -->
+    <path d="M-40,120 L40,120 C50,120 60,100 50,90 C40,80 -40,80 -50,90 C-60,100 -50,120 -40,120 Z" fill="none" stroke="black" stroke-width="1.5"/> <!-- Soil mound -->
+    <circle cx="-30" cy="95" r="5" fill="none" stroke="black" stroke-width="1.5"/> <!-- Acorn being planted -->
+    <path d="M-40,60 L-30,90" fill="none" stroke="black" stroke-width="1"/> <!-- Line to acorn -->
+  </g>
+  
+  <!-- Illustration 3: Tree growing -->
+  <g transform="translate(650, 280)">
+    <circle cx="0" cy="0" r="30" fill="none" stroke="black" stroke-width="1.5"/> <!-- Head -->
+    <path d="M-10,-10 L-5,-10 M10,-10 L5,-10" stroke="black" stroke-width="1.5"/> <!-- Eyes -->
+    <path d="M0,5 C-5,5 5,5 0,10" fill="none" stroke="black" stroke-width="1.5"/> <!-- Smile -->
+    <path d="M-30,-30 Q0,-60 30,-30" fill="none" stroke="black" stroke-width="1.5"/> <!-- Hair -->
+    <path d="M0,30 L0,80" stroke="black" stroke-width="2"/> <!-- Body -->
+    <path d="M0,40 L-30,70 M0,40 L30,70" stroke="black" stroke-width="2"/> <!-- Arms -->
+    <path d="M0,80 L-20,120 M0,80 L20,120" stroke="black" stroke-width="2"/> <!-- Legs -->
+    <!-- Small tree -->
+    <path d="M-60,120 L-60,70" stroke="black" stroke-width="3"/> <!-- Trunk -->
+    <path d="M-60,70 L-80,90 L-40,90 Z" fill="none" stroke="black" stroke-width="1.5"/> <!-- Branches -->
+    <path d="M-60,70 L-85,70 L-35,70 Z" fill="none" stroke="black" stroke-width="1.5"/> <!-- Branches -->
+    <path d="M-60,70 L-75,50 L-45,50 Z" fill="none" stroke="black" stroke-width="1.5"/> <!-- Branches -->
+  </g>
+  
+  <!-- Rest of the story -->
+  <foreignObject x="50" y="450" width="700" height="130">
+    <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: Arial; font-size: 14px; line-height: 1.5;">
+      <p>They planted the acorn in their backyard. Penny watered it every day and made sure it got plenty of sunlight.</p>
+      <p>"It will take a long time to grow," Mom explained. "Trees need patience."</p>
+      <p>Penny didn't mind waiting. She knew that one day, her tiny acorn would become a mighty oak tree where birds could build nests and children could play in its shade.</p>
+      <p>"I'm helping our planet," Penny said proudly. "One tree at a time!"</p>
+    </div>
+  </foreignObject>
+  
+  <!-- Instructions -->
+  <text x="400" y="580" font-family="Arial" font-size="14" text-anchor="middle" fill="black">You can print this story and color the pictures!</text>
+</svg>
