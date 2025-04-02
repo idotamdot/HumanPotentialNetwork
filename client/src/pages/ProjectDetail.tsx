@@ -11,6 +11,13 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogHeader, 
+  DialogTitle 
+} from "@/components/ui/dialog";
 import { useState } from "react";
 
 export default function ProjectDetail() {
@@ -21,6 +28,15 @@ export default function ProjectDetail() {
   const [comment, setComment] = useState("");
   const [isJoining, setIsJoining] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const [resourcePreview, setResourcePreview] = useState<{
+    isOpen: boolean;
+    title: string;
+    content: React.ReactNode;
+  }>({
+    isOpen: false,
+    title: "",
+    content: null
+  });
 
   // Get project details
   const { data: project, isLoading } = useQuery({
@@ -108,6 +124,294 @@ export default function ProjectDetail() {
       </div>
     );
   }
+
+  // Resource content generators
+  const getProjectPlanContent = () => (
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-lg font-medium">Executive Summary</h3>
+        <p className="text-gray-700 mt-2">
+          This document outlines the comprehensive plan for our {project?.title} initiative. 
+          The project aims to address critical challenges through innovative solutions and 
+          collaborative approaches. Our timeline spans 12 months with key milestones established 
+          for monitoring progress.
+        </p>
+      </div>
+      
+      <div>
+        <h3 className="text-lg font-medium">Goals & Objectives</h3>
+        <ul className="list-disc pl-5 mt-2 space-y-1 text-gray-700">
+          <li>Develop sustainable infrastructure solutions to support local needs</li>
+          <li>Engage at least 3-5 partner organizations in collaborative implementation</li>
+          <li>Reach direct impact for 1,000+ beneficiaries by project completion</li>
+          <li>Create documentation that allows for replication in similar contexts</li>
+          <li>Establish long-term monitoring & evaluation framework</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h3 className="text-lg font-medium">Timeline & Milestones</h3>
+        <div className="mt-2 border rounded-md divide-y">
+          <div className="p-3 flex justify-between">
+            <div>
+              <div className="font-medium">Initial Assessment Phase</div>
+              <div className="text-sm text-gray-600">Data collection, stakeholder mapping</div>
+            </div>
+            <div className="text-sm text-gray-600">Months 1-2</div>
+          </div>
+          <div className="p-3 flex justify-between">
+            <div>
+              <div className="font-medium">Design & Planning</div>
+              <div className="text-sm text-gray-600">Solution development, partnership formation</div>
+            </div>
+            <div className="text-sm text-gray-600">Months 3-4</div>
+          </div>
+          <div className="p-3 flex justify-between">
+            <div>
+              <div className="font-medium">Implementation</div>
+              <div className="text-sm text-gray-600">Core project activities</div>
+            </div>
+            <div className="text-sm text-gray-600">Months 5-10</div>
+          </div>
+          <div className="p-3 flex justify-between">
+            <div>
+              <div className="font-medium">Evaluation & Scaling</div>
+              <div className="text-sm text-gray-600">Assessment, documentation, expansion planning</div>
+            </div>
+            <div className="text-sm text-gray-600">Months 11-12</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+  
+  const getResearchDataContent = () => (
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-lg font-medium">Research Summary</h3>
+        <p className="text-gray-700 mt-2">
+          This document presents the baseline data and initial research findings for the {project?.title} project.
+          Our research team conducted interviews, surveys, and secondary data analysis to inform the project design.
+        </p>
+      </div>
+      
+      <div>
+        <h3 className="text-lg font-medium">Key Findings</h3>
+        <div className="mt-2 space-y-2">
+          <div className="p-3 bg-blue-50 rounded-md">
+            <div className="font-medium text-blue-800">Community Needs Assessment</div>
+            <p className="text-sm text-blue-700 mt-1">
+              83% of survey respondents identified access to resources as their primary concern, 
+              with education and skills development ranked as the second highest priority (67%).
+            </p>
+          </div>
+          
+          <div className="p-3 bg-green-50 rounded-md">
+            <div className="font-medium text-green-800">Environmental Impact Analysis</div>
+            <p className="text-sm text-green-700 mt-1">
+              Current practices generate approximately 2.8 tons of CO2 equivalent per capita annually.
+              Our proposed solutions could reduce this by up to 35% within the first year of implementation.
+            </p>
+          </div>
+          
+          <div className="p-3 bg-amber-50 rounded-md">
+            <div className="font-medium text-amber-800">Stakeholder Mapping</div>
+            <p className="text-sm text-amber-700 mt-1">
+              Identified 12 potential partner organizations with complementary resources and expertise.
+              4 have expressed strong interest in formal collaboration partnerships.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div>
+        <h3 className="text-lg font-medium">Data Visualizations</h3>
+        <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="border rounded-md p-4">
+            <div className="font-medium mb-2">Community Priority Areas</div>
+            <div className="h-40 flex items-end justify-around">
+              <div className="w-12 bg-blue-500 rounded-t h-[83%] flex items-end justify-center pb-1">
+                <span className="text-xs text-white font-medium">83%</span>
+              </div>
+              <div className="w-12 bg-blue-500 rounded-t h-[67%] flex items-end justify-center pb-1">
+                <span className="text-xs text-white font-medium">67%</span>
+              </div>
+              <div className="w-12 bg-blue-500 rounded-t h-[54%] flex items-end justify-center pb-1">
+                <span className="text-xs text-white font-medium">54%</span>
+              </div>
+              <div className="w-12 bg-blue-500 rounded-t h-[42%] flex items-end justify-center pb-1">
+                <span className="text-xs text-white font-medium">42%</span>
+              </div>
+              <div className="w-12 bg-blue-500 rounded-t h-[28%] flex items-end justify-center pb-1">
+                <span className="text-xs text-white font-medium">28%</span>
+              </div>
+            </div>
+            <div className="mt-2 text-xs text-gray-500 flex justify-around">
+              <span>Resources</span>
+              <span>Education</span>
+              <span>Health</span>
+              <span>Employment</span>
+              <span>Housing</span>
+            </div>
+          </div>
+          
+          <div className="border rounded-md p-4">
+            <div className="font-medium mb-2">Projected Impact Timeline</div>
+            <div className="h-40 relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full h-1 bg-gray-200 relative">
+                  <div className="absolute h-3 w-3 bg-green-500 rounded-full -top-1 left-[10%]"></div>
+                  <div className="absolute h-3 w-3 bg-green-500 rounded-full -top-1 left-[35%]"></div>
+                  <div className="absolute h-3 w-3 bg-green-500 rounded-full -top-1 left-[65%]"></div>
+                  <div className="absolute h-3 w-3 bg-green-500 rounded-full -top-1 left-[90%]"></div>
+                </div>
+              </div>
+              <div className="absolute bottom-0 left-[10%] -translate-x-1/2 text-xs text-gray-600">Phase 1</div>
+              <div className="absolute bottom-0 left-[35%] -translate-x-1/2 text-xs text-gray-600">Phase 2</div>
+              <div className="absolute bottom-0 left-[65%] -translate-x-1/2 text-xs text-gray-600">Phase 3</div>
+              <div className="absolute bottom-0 left-[90%] -translate-x-1/2 text-xs text-gray-600">Phase 4</div>
+              
+              <div className="absolute top-4 left-[10%] -translate-x-1/2 text-xs text-gray-700 font-medium">100+</div>
+              <div className="absolute top-4 left-[35%] -translate-x-1/2 text-xs text-gray-700 font-medium">350+</div>
+              <div className="absolute top-4 left-[65%] -translate-x-1/2 text-xs text-gray-700 font-medium">700+</div>
+              <div className="absolute top-4 left-[90%] -translate-x-1/2 text-xs text-gray-700 font-medium">1000+</div>
+              
+              <div className="absolute top-10 left-[10%] -translate-x-1/2 text-[10px] text-green-700">Beneficiaries</div>
+              <div className="absolute top-10 left-[35%] -translate-x-1/2 text-[10px] text-green-700">Beneficiaries</div>
+              <div className="absolute top-10 left-[65%] -translate-x-1/2 text-[10px] text-green-700">Beneficiaries</div>
+              <div className="absolute top-10 left-[90%] -translate-x-1/2 text-[10px] text-green-700">Beneficiaries</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+  
+  const getDesignAssetsContent = () => (
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-lg font-medium">Design Asset Library</h3>
+        <p className="text-gray-700 mt-2">
+          This collection contains logos, graphics, and design templates for the {project?.title} project.
+          All assets follow our brand guidelines and are available in multiple formats.
+        </p>
+      </div>
+      
+      <div>
+        <h3 className="text-lg font-medium">Project Logo Variations</h3>
+        <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="border rounded-md p-3 flex flex-col items-center">
+            <div className="h-20 w-20 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xl">
+              HPN
+            </div>
+            <div className="mt-2 text-xs text-gray-600">Primary Logo</div>
+          </div>
+          <div className="border rounded-md p-3 flex flex-col items-center">
+            <div className="h-20 w-20 bg-white border-2 border-primary rounded-full flex items-center justify-center text-primary font-bold text-xl">
+              HPN
+            </div>
+            <div className="mt-2 text-xs text-gray-600">Outline Version</div>
+          </div>
+          <div className="border rounded-md p-3 flex flex-col items-center">
+            <div className="h-20 w-20 bg-gray-800 rounded-full flex items-center justify-center text-white font-bold text-xl">
+              HPN
+            </div>
+            <div className="mt-2 text-xs text-gray-600">Dark Version</div>
+          </div>
+          <div className="border rounded-md p-3 flex flex-col items-center">
+            <div className="h-20 w-20 bg-gradient-to-r from-primary to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
+              HPN
+            </div>
+            <div className="mt-2 text-xs text-gray-600">Gradient Version</div>
+          </div>
+        </div>
+      </div>
+      
+      <div>
+        <h3 className="text-lg font-medium">Color Palette</h3>
+        <div className="mt-2 grid grid-cols-2 md:grid-cols-5 gap-2">
+          <div className="flex flex-col">
+            <div className="h-12 bg-primary rounded-t-md"></div>
+            <div className="p-1 border-x border-b rounded-b-md text-[10px] text-center text-gray-600">
+              Primary Blue<br/>#4F46E5
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <div className="h-12 bg-green-600 rounded-t-md"></div>
+            <div className="p-1 border-x border-b rounded-b-md text-[10px] text-center text-gray-600">
+              Success Green<br/>#16A34A
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <div className="h-12 bg-amber-500 rounded-t-md"></div>
+            <div className="p-1 border-x border-b rounded-b-md text-[10px] text-center text-gray-600">
+              Warning Amber<br/>#F59E0B
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <div className="h-12 bg-red-600 rounded-t-md"></div>
+            <div className="p-1 border-x border-b rounded-b-md text-[10px] text-center text-gray-600">
+              Error Red<br/>#DC2626
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <div className="h-12 bg-gray-800 rounded-t-md"></div>
+            <div className="p-1 border-x border-b rounded-b-md text-[10px] text-center text-gray-600">
+              Text Gray<br/>#1F2937
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div>
+        <h3 className="text-lg font-medium">Document Templates</h3>
+        <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="border rounded-md p-3">
+            <div className="aspect-[8.5/11] bg-white border flex flex-col">
+              <div className="h-12 bg-primary"></div>
+              <div className="flex-1 p-2">
+                <div className="h-4 w-20 bg-gray-300 mb-2"></div>
+                <div className="h-4 w-full bg-gray-200"></div>
+                <div className="h-4 w-full bg-gray-200 mt-1"></div>
+                <div className="h-4 w-3/4 bg-gray-200 mt-1"></div>
+              </div>
+            </div>
+            <div className="mt-2 text-xs text-gray-600 font-medium text-center">Report Template</div>
+          </div>
+          <div className="border rounded-md p-3">
+            <div className="aspect-[16/9] bg-white border flex flex-col">
+              <div className="h-8 bg-primary"></div>
+              <div className="flex-1 p-2 flex">
+                <div className="w-2/3">
+                  <div className="h-3 w-20 bg-gray-300 mb-2"></div>
+                  <div className="h-3 w-full bg-gray-200"></div>
+                  <div className="h-3 w-full bg-gray-200 mt-1"></div>
+                </div>
+                <div className="w-1/3 p-1">
+                  <div className="h-full bg-gray-100 rounded"></div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-2 text-xs text-gray-600 font-medium text-center">Presentation Slide</div>
+          </div>
+          <div className="border rounded-md p-3">
+            <div className="aspect-square bg-white border flex flex-col">
+              <div className="h-8 bg-primary flex items-center justify-center">
+                <div className="h-4 w-16 bg-white/30 rounded"></div>
+              </div>
+              <div className="flex-1 grid grid-cols-2 grid-rows-2 gap-1 p-1">
+                <div className="bg-gray-100 rounded"></div>
+                <div className="bg-gray-100 rounded"></div>
+                <div className="bg-gray-100 rounded"></div>
+                <div className="bg-gray-100 rounded"></div>
+              </div>
+            </div>
+            <div className="mt-2 text-xs text-gray-600 font-medium text-center">Social Media Post</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   if (!project) {
     return (
@@ -522,9 +826,22 @@ export default function ProjectDetail() {
                           variant="outline" 
                           size="sm" 
                           onClick={() => {
-                            toast({
-                              title: "Resource Opened",
-                              description: "The resource is being displayed",
+                            // Determine the content based on the resource type
+                            let content;
+                            if (resource.type === "document") {
+                              content = getProjectPlanContent();
+                            } else if (resource.type === "data") {
+                              content = getResearchDataContent();
+                            } else if (resource.type === "design") {
+                              content = getDesignAssetsContent();
+                            } else {
+                              content = <p>This resource type is not supported for preview.</p>;
+                            }
+                            
+                            setResourcePreview({
+                              isOpen: true,
+                              title: resource.title,
+                              content
                             });
                           }}
                         >
@@ -545,9 +862,10 @@ export default function ProjectDetail() {
                         variant="outline" 
                         size="sm" 
                         onClick={() => {
-                          toast({
-                            title: "Resource Opened",
-                            description: "Viewing Project Plan Document",
+                          setResourcePreview({
+                            isOpen: true,
+                            title: "Project Plan Document",
+                            content: getProjectPlanContent()
                           });
                         }}
                       >
@@ -565,9 +883,10 @@ export default function ProjectDetail() {
                         variant="outline" 
                         size="sm" 
                         onClick={() => {
-                          toast({
-                            title: "Resource Opened",
-                            description: "Viewing Research Data",
+                          setResourcePreview({
+                            isOpen: true,
+                            title: "Research Data",
+                            content: getResearchDataContent()
                           });
                         }}
                       >
@@ -585,9 +904,10 @@ export default function ProjectDetail() {
                         variant="outline" 
                         size="sm" 
                         onClick={() => {
-                          toast({
-                            title: "Resource Opened",
-                            description: "Viewing Design Assets",
+                          setResourcePreview({
+                            isOpen: true,
+                            title: "Design Assets",
+                            content: getDesignAssetsContent()
                           });
                         }}
                       >
@@ -616,6 +936,25 @@ export default function ProjectDetail() {
             </Card>
           </TabsContent>
         </Tabs>
+        
+        {/* Resource Preview Dialog */}
+        <Dialog open={resourcePreview.isOpen} onOpenChange={(open) => {
+          if (!open) {
+            setResourcePreview(prev => ({ ...prev, isOpen: false }));
+          }
+        }}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-xl">{resourcePreview.title}</DialogTitle>
+              <DialogDescription>
+                View and explore this project resource
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-4">
+              {resourcePreview.content}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
