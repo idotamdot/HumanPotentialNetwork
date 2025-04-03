@@ -18,7 +18,8 @@ import {
   insertNotificationSchema,
   insertImpactTokenSchema,
   insertRewardItemSchema,
-  insertTokenRedemptionSchema
+  insertTokenRedemptionSchema,
+  insertProjectResourceSchema
 } from "@shared/schema";
 import { setupAuth } from "./auth";
 import { RecommendationService } from "./services/recommendation";
@@ -1056,6 +1057,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(200).json({ message: "All notifications marked as read" });
     } catch (error) {
       res.status(500).json({ message: "Failed to mark all notifications as read" });
+    }
+  });
+  
+  // Project Resource routes
+  app.get("/api/projects/:projectId/resources", async (req, res) => {
+    const projectId = parseInt(req.params.projectId);
+    if (isNaN(projectId)) {
+      return res.status(400).json({ message: "Invalid project ID" });
+    }
+    
+    try {
+      const resources = await storage.getProjectResources(projectId);
+      res.json(resources);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get project resources" });
+    }
+  });
+  
+  app.get("/api/project-resources/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid resource ID" });
+    }
+    
+    const resource = await storage.getProjectResource(id);
+    if (!resource) {
+      return res.status(404).json({ message: "Resource not found" });
+    }
+    
+    res.json(resource);
+  });
+  
+  app.get("/api/project-resources-public", async (req, res) => {
+    try {
+      const resources = await storage.getPublicProjectResources();
+      res.json(resources);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get public resources" });
+    }
+  });
+  
+  app.post("/api/project-resources", async (req, res) => {
+    try {
+      const resourceData = insertProjectResourceSchema.parse(req.body);
+      const resource = await storage.createProjectResource(resourceData);
+      res.status(201).json(resource);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid resource data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create project resource" });
+    }
+  });
+  
+  app.patch("/api/project-resources/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid resource ID" });
+    }
+    
+    try {
+      const updatedResource = await storage.updateProjectResource(id, req.body);
+      if (!updatedResource) {
+        return res.status(404).json({ message: "Resource not found" });
+      }
+      
+      res.json(updatedResource);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update project resource" });
+    }
+  });
+  
+  app.delete("/api/project-resources/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid resource ID" });
+    }
+    
+    try {
+      const success = await storage.deleteProjectResource(id);
+      if (!success) {
+        return res.status(404).json({ message: "Resource not found" });
+      }
+      
+      res.status(204).end();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete project resource" });
     }
   });
   

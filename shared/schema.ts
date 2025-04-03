@@ -386,3 +386,28 @@ export type InsertRewardItem = z.infer<typeof insertRewardItemSchema>;
 
 export type TokenRedemption = typeof tokenRedemptions.$inferSelect;
 export type InsertTokenRedemption = z.infer<typeof insertTokenRedemptionSchema>;
+
+// Project Resources schema
+export const projectResources = pgTable("project_resources", {
+  id: serial("id").primaryKey(),
+  projectId: integer("project_id").notNull().references(() => projects.id),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  type: text("type").notNull(), // document, link, image, video, data, etc.
+  url: text("url"), // External URL if applicable
+  content: text("content"), // For storing direct content like markdown
+  addedById: integer("added_by_id").notNull().references(() => users.id),
+  visibility: text("visibility").notNull().default("members"), // public, members, contributors
+  tags: text("tags").array().default([]),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const insertProjectResourceSchema = createInsertSchema(projectResources).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type ProjectResource = typeof projectResources.$inferSelect;
+export type InsertProjectResource = z.infer<typeof insertProjectResourceSchema>;

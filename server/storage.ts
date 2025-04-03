@@ -17,7 +17,8 @@ import {
   notifications, Notification, InsertNotification,
   impactTokens, ImpactToken, InsertImpactToken,
   rewardItems, RewardItem, InsertRewardItem,
-  tokenRedemptions, TokenRedemption, InsertTokenRedemption
+  tokenRedemptions, TokenRedemption, InsertTokenRedemption,
+  projectResources, ProjectResource, InsertProjectResource
 } from "@shared/schema";
 
 export interface IStorage {
@@ -139,6 +140,14 @@ export interface IStorage {
   createRedemption(redemption: InsertTokenRedemption): Promise<TokenRedemption>;
   getRedemptionById(id: number): Promise<TokenRedemption | undefined>;
   updateRedemptionStatus(id: number, status: string, fulfillmentDate?: Date): Promise<TokenRedemption | undefined>;
+  
+  // Project Resource methods
+  getProjectResources(projectId: number): Promise<ProjectResource[]>;
+  getProjectResource(id: number): Promise<ProjectResource | undefined>;
+  createProjectResource(resource: InsertProjectResource): Promise<ProjectResource>;
+  updateProjectResource(id: number, data: Partial<ProjectResource>): Promise<ProjectResource | undefined>;
+  deleteProjectResource(id: number): Promise<boolean>;
+  getPublicProjectResources(): Promise<ProjectResource[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -161,6 +170,7 @@ export class MemStorage implements IStorage {
   private impactTokens: Map<number, ImpactToken>;
   private rewardItems: Map<number, RewardItem>;
   private tokenRedemptions: Map<number, TokenRedemption>;
+  private projectResources: Map<number, ProjectResource>;
   
   private nextIds: {
     users: number;
@@ -182,6 +192,7 @@ export class MemStorage implements IStorage {
     impactTokens: number;
     rewardItems: number;
     tokenRedemptions: number;
+    projectResources: number;
   };
 
   constructor() {
@@ -204,6 +215,7 @@ export class MemStorage implements IStorage {
     this.impactTokens = new Map();
     this.rewardItems = new Map();
     this.tokenRedemptions = new Map();
+    this.projectResources = new Map();
     
     this.nextIds = {
       users: 1,
@@ -225,6 +237,7 @@ export class MemStorage implements IStorage {
       impactTokens: 1,
       rewardItems: 1,
       tokenRedemptions: 1,
+      projectResources: 1,
     };
     
     // Initialize with some data
@@ -1043,6 +1056,52 @@ export class MemStorage implements IStorage {
     // This is an alias for awardTokens, used for refunds and other token additions
     return this.awardTokens(insertToken);
   }
+  
+  // Project Resource methods
+  async getProjectResources(projectId: number): Promise<ProjectResource[]> {
+    return Array.from(this.projectResources.values()).filter(
+      (resource) => resource.projectId === projectId
+    );
+  }
+
+  async getProjectResource(id: number): Promise<ProjectResource | undefined> {
+    return this.projectResources.get(id);
+  }
+
+  async createProjectResource(insertResource: InsertProjectResource): Promise<ProjectResource> {
+    const id = this.nextIds.projectResources++;
+    const resource: ProjectResource = {
+      ...insertResource,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.projectResources.set(id, resource);
+    return resource;
+  }
+
+  async updateProjectResource(id: number, data: Partial<ProjectResource>): Promise<ProjectResource | undefined> {
+    const resource = await this.getProjectResource(id);
+    if (!resource) return undefined;
+    
+    const updatedResource = {
+      ...resource,
+      ...data,
+      updatedAt: new Date()
+    };
+    this.projectResources.set(id, updatedResource);
+    return updatedResource;
+  }
+
+  async deleteProjectResource(id: number): Promise<boolean> {
+    return this.projectResources.delete(id);
+  }
+
+  async getPublicProjectResources(): Promise<ProjectResource[]> {
+    return Array.from(this.projectResources.values()).filter(
+      (resource) => resource.visibility === "public"
+    );
+  }
 
   // Initialize with sample data
   private async initData() {
@@ -1415,6 +1474,43 @@ export class MemStorage implements IStorage {
       userId: user.id,
       rewardItemId: 1, // Digital Certificate
       tokenAmount: 100
+    });
+    
+    // Create sample project resources
+    await this.createProjectResource({
+      type: "document",
+      title: "Project Charter",
+      description: "Official project charter outlining goals and objectives",
+      projectId: renewableEnergy.id,
+      addedById: user.id,
+      content: "# Renewable Energy Advocates Project Charter\n\n## Mission\nTo educate and inspire communities about renewable energy solutions.\n\n## Goals\n- Create educational materials for different age groups\n- Host 5 community workshops\n- Develop a simple starter guide for home solar implementation",
+      tags: ["documentation", "guidelines"],
+      url: null,
+      visibility: "project"
+    });
+    
+    await this.createProjectResource({
+      type: "link",
+      title: "Educational Resources Directory",
+      description: "Collection of external resources for renewable energy education",
+      projectId: renewableEnergy.id,
+      addedById: user.id,
+      content: null,
+      tags: ["education", "external"],
+      url: "https://www.energy.gov/energysaver/renewable-energy",
+      visibility: "public"
+    });
+    
+    await this.createProjectResource({
+      type: "code",
+      title: "Solar Calculator",
+      description: "Simple calculator to estimate solar panel requirements and savings",
+      projectId: renewableEnergy.id,
+      addedById: user.id,
+      content: "function calculateSolarNeeds(monthlyKWh, sunHoursPerDay) {\n  const systemSize = monthlyKWh / (30 * sunHoursPerDay * 0.78);\n  const panelCount = Math.ceil(systemSize * 1000 / 350);\n  return {\n    systemSizeKW: systemSize.toFixed(2),\n    recommendedPanels: panelCount,\n    estimatedCost: (panelCount * 500).toFixed(2)\n  };\n}",
+      tags: ["tool", "calculator"],
+      url: null,
+      visibility: "project"
     });
     
     // Add comments to proposals
