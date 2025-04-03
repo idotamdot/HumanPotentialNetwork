@@ -6,6 +6,28 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import { sidebarIcons } from "@/lib/icons";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+
+// Custom GradientButton component for rewards
+const GradientButton = ({ 
+  onClick, 
+  disabled, 
+  children, 
+  className, 
+  ...props 
+}: React.ComponentProps<typeof Button>) => (
+  <Button
+    className={cn(
+      "w-full bg-gradient-to-r from-primary to-primary-400 hover:from-primary-600 hover:to-primary shadow-md",
+      className
+    )}
+    onClick={onClick}
+    disabled={disabled}
+    {...props}
+  >
+    {children}
+  </Button>
+);
 
 export default function Rewards() {
   const { user } = useAuth();
@@ -74,7 +96,7 @@ export default function Rewards() {
                     <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
                       Premium Course
                     </Badge>
-                    <Badge variant="outline" className="bg-primary bg-opacity-10 text-primary">
+                    <Badge variant="secondary" className="bg-primary-100 text-primary-800 font-medium">
                       750 points
                     </Badge>
                   </div>
@@ -121,13 +143,12 @@ export default function Rewards() {
                       Certificate included
                     </div>
                   </div>
-                  <Button
-                    className="w-full"
+                  <GradientButton
                     onClick={() => redeemReward("Advanced Data Visualization Course")}
                     disabled={!user || (user.potentialPoints || 0) < 750}
                   >
                     Redeem Course
-                  </Button>
+                  </GradientButton>
                 </CardContent>
               </Card>
 
@@ -138,7 +159,7 @@ export default function Rewards() {
                     <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
                       Premium Course
                     </Badge>
-                    <Badge variant="outline" className="bg-primary bg-opacity-10 text-primary">
+                    <Badge variant="secondary" className="bg-primary-100 text-primary-800 font-medium">
                       500 points
                     </Badge>
                   </div>
@@ -185,13 +206,12 @@ export default function Rewards() {
                       Certificate included
                     </div>
                   </div>
-                  <Button
-                    className="w-full"
+                  <GradientButton
                     onClick={() => redeemReward("Project Management for Impact Course")}
                     disabled={!user || (user.potentialPoints || 0) < 500}
                   >
                     Redeem Course
-                  </Button>
+                  </GradientButton>
                 </CardContent>
               </Card>
 
@@ -202,7 +222,7 @@ export default function Rewards() {
                     <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
                       Premium Course
                     </Badge>
-                    <Badge variant="outline" className="bg-primary bg-opacity-10 text-primary">
+                    <Badge variant="secondary" className="bg-primary-100 text-primary-800 font-medium">
                       650 points
                     </Badge>
                   </div>
@@ -249,13 +269,12 @@ export default function Rewards() {
                       Certificate included
                     </div>
                   </div>
-                  <Button
-                    className="w-full"
+                  <GradientButton
                     onClick={() => redeemReward("Community Leadership Course")}
                     disabled={!user || (user.potentialPoints || 0) < 650}
                   >
                     Redeem Course
-                  </Button>
+                  </GradientButton>
                 </CardContent>
               </Card>
             </div>
@@ -270,7 +289,7 @@ export default function Rewards() {
                     <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
                       Virtual Event
                     </Badge>
-                    <Badge variant="outline" className="bg-primary bg-opacity-10 text-primary">
+                    <Badge variant="secondary" className="bg-primary-100 text-primary-800 font-medium">
                       1000 points
                     </Badge>
                   </div>
@@ -315,13 +334,12 @@ export default function Rewards() {
                       Virtual (Zoom)
                     </div>
                   </div>
-                  <Button
-                    className="w-full"
+                  <GradientButton
                     onClick={() => redeemReward("Climate Action Summit 2023 Ticket")}
                     disabled={!user || (user.potentialPoints || 0) < 1000}
                   >
                     Redeem Event Pass
-                  </Button>
+                  </GradientButton>
                 </CardContent>
               </Card>
 
@@ -332,7 +350,7 @@ export default function Rewards() {
                     <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
                       In-Person Event
                     </Badge>
-                    <Badge variant="outline" className="bg-primary bg-opacity-10 text-primary">
+                    <Badge variant="secondary" className="bg-primary-100 text-primary-800 font-medium">
                       2500 points
                     </Badge>
                   </div>
@@ -377,13 +395,12 @@ export default function Rewards() {
                       San Francisco, CA
                     </div>
                   </div>
-                  <Button
-                    className="w-full"
+                  <GradientButton
                     onClick={() => redeemReward("Human Potential Global Conference Ticket")}
                     disabled={!user || (user.potentialPoints || 0) < 2500}
                   >
                     Redeem Event Pass
-                  </Button>
+                  </GradientButton>
                 </CardContent>
               </Card>
             </div>
@@ -398,7 +415,7 @@ export default function Rewards() {
                     <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200">
                       Digital Resource
                     </Badge>
-                    <Badge variant="outline" className="bg-primary bg-opacity-10 text-primary">
+                    <Badge variant="secondary" className="bg-primary-100 text-primary-800 font-medium">
                       300 points
                     </Badge>
                   </div>
@@ -408,13 +425,12 @@ export default function Rewards() {
                   <p className="text-gray-600 mb-4">
                     Comprehensive digital tools and templates for planning sustainable community projects.
                   </p>
-                  <Button
-                    className="w-full"
+                  <GradientButton
                     onClick={() => redeemReward("Sustainability Toolkit Pro")}
                     disabled={!user || (user.potentialPoints || 0) < 300}
                   >
                     Redeem Resource
-                  </Button>
+                  </GradientButton>
                 </CardContent>
               </Card>
 
@@ -425,7 +441,7 @@ export default function Rewards() {
                     <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200">
                       Digital Resource
                     </Badge>
-                    <Badge variant="outline" className="bg-primary bg-opacity-10 text-primary">
+                    <Badge variant="secondary" className="bg-primary-100 text-primary-800 font-medium">
                       200 points
                     </Badge>
                   </div>
@@ -435,13 +451,12 @@ export default function Rewards() {
                   <p className="text-gray-600 mb-4">
                     Research-backed framework for measuring social and environmental impact of your projects.
                   </p>
-                  <Button
-                    className="w-full"
+                  <GradientButton
                     onClick={() => redeemReward("Impact Measurement Framework")}
                     disabled={!user || (user.potentialPoints || 0) < 200}
                   >
                     Redeem Resource
-                  </Button>
+                  </GradientButton>
                 </CardContent>
               </Card>
 
@@ -452,7 +467,7 @@ export default function Rewards() {
                     <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200">
                       Digital Resource
                     </Badge>
-                    <Badge variant="outline" className="bg-primary bg-opacity-10 text-primary">
+                    <Badge variant="secondary" className="bg-primary-100 text-primary-800 font-medium">
                       150 points
                     </Badge>
                   </div>
@@ -462,13 +477,12 @@ export default function Rewards() {
                   <p className="text-gray-600 mb-4">
                     Strategies and methods for effectively engaging diverse communities in your initiatives.
                   </p>
-                  <Button
-                    className="w-full"
+                  <GradientButton
                     onClick={() => redeemReward("Community Engagement Playbook")}
                     disabled={!user || (user.potentialPoints || 0) < 150}
                   >
                     Redeem Resource
-                  </Button>
+                  </GradientButton>
                 </CardContent>
               </Card>
             </div>
