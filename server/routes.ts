@@ -1,4 +1,4 @@
-import express, { type Express } from "express";
+import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
@@ -23,10 +23,19 @@ import {
 } from "@shared/schema";
 import { setupAuth } from "./auth";
 import { RecommendationService } from "./services/recommendation";
+import { OpenAIService } from "./services/openai";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication
   setupAuth(app);
+  
+  // Middleware to check if user is authenticated
+  const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+    if (req.isAuthenticated()) {
+      return next();
+    }
+    res.status(401).json({ message: "Not authenticated" });
+  };
   // User routes
   app.get("/api/users/:id", async (req, res) => {
     const id = parseInt(req.params.id);
@@ -319,6 +328,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Micro Learning Path Generation routes
+  app.post("/api/micro-learning/generate", isAuthenticated, async (req, res) => {
+    try {
+      const { topic, interests, timeConstraint } = req.body;
+      
+      if (!topic) {
+        return res.status(400).json({ message: "Topic is required" });
+      }
+      
+      const userId = req.user?.id;
+      const result = await OpenAIService.generateMicroLearningPath(
+        topic, 
+        interests || [], 
+        userId,
+        timeConstraint
+      );
+      
+      res.status(201).json({
+        message: "Micro-learning path generated successfully",
+        learningPath: result.learningPath,
+        modules: result.modules
+      });
+    } catch (error) {
+      console.error("Error generating micro-learning path:", error);
+      res.status(500).json({ message: "Failed to generate micro-learning path" });
+    }
+  });
+  
+  // Find micro-learning paths
+  app.get("/api/micro-learning", async (req, res) => {
+    try {
+      const paths = await storage.getAllLearningPaths();
+      const microPaths = paths.filter(path => path.isMicroLearning);
+      res.json(microPaths);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get micro-learning paths" });
+    }
+  });
+
   // Learning Paths routes
   app.get("/api/learning-paths", async (req, res) => {
     try {

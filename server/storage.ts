@@ -20,8 +20,14 @@ import {
   tokenRedemptions, TokenRedemption, InsertTokenRedemption,
   projectResources, ProjectResource, InsertProjectResource
 } from "@shared/schema";
+import session from "express-session";
+import createMemoryStore from "memorystore";
+
+const MemoryStore = createMemoryStore(session);
 
 export interface IStorage {
+  sessionStore: session.Store;
+  
   // User methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
@@ -151,6 +157,8 @@ export interface IStorage {
 }
 
 export class MemStorage implements IStorage {
+  public sessionStore: session.Store;
+  
   private users: Map<number, User>;
   private skills: Map<number, Skill>;
   private issues: Map<number, Issue>;
@@ -196,6 +204,11 @@ export class MemStorage implements IStorage {
   };
 
   constructor() {
+    // Initialize session store
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    });
+    
     this.users = new Map();
     this.skills = new Map();
     this.issues = new Map();

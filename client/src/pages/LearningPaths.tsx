@@ -9,7 +9,8 @@ import {
   Award, 
   Filter,
   X,
-  BarChart
+  BarChart,
+  Sparkles
 } from "lucide-react";
 import {
   Card,
@@ -37,6 +38,7 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { LearningPath, UserLearningProgress } from "@shared/schema";
+import MicroLearningGenerator from "@/components/MicroLearningGenerator";
 
 // Helper function to determine the card color based on path category
 const getCategoryColor = (category: string): string => {
@@ -74,6 +76,11 @@ export default function LearningPaths() {
   // Fetch all learning paths
   const { data: learningPaths, isLoading: loadingPaths } = useQuery<LearningPath[]>({
     queryKey: ["/api/learning-paths"],
+  });
+  
+  // Fetch micro-learning paths
+  const { data: microLearningPaths, isLoading: loadingMicroPaths } = useQuery<LearningPath[]>({
+    queryKey: ["/api/micro-learning"],
   });
   
   // Fetch user's enrolled learning paths if logged in
@@ -127,16 +134,22 @@ export default function LearningPaths() {
             </p>
           </div>
           
-          {user && userProgress && userProgress.length > 0 && (
-            <Button
-              variant="outline"
-              className="gap-2 mt-4 md:mt-0"
-              onClick={() => document.getElementById("my-paths")?.scrollIntoView({ behavior: "smooth" })}
-            >
-              <BookOpen className="h-4 w-4" />
-              My Learning Paths
-            </Button>
-          )}
+          <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
+            {user && (
+              <MicroLearningGenerator />
+            )}
+            
+            {user && userProgress && userProgress.length > 0 && (
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => document.getElementById("my-paths")?.scrollIntoView({ behavior: "smooth" })}
+              >
+                <BookOpen className="h-4 w-4" />
+                My Learning Paths
+              </Button>
+            )}
+          </div>
         </div>
         
         {/* Search and Filters */}
@@ -293,6 +306,96 @@ export default function LearningPaths() {
                   </CardFooter>
                 </Card>
               ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Micro-Learning Paths Section */}
+        {microLearningPaths && microLearningPaths.length > 0 && (
+          <div className="mb-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                <h2 className="text-xl font-semibold">Quick Learning Paths</h2>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Complete in 15-60 minutes
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {microLearningPaths.map(path => {
+                const userPathProgress = getUserPathProgress(path.id);
+                const isEnrolled = !!userPathProgress;
+                const isCompleted = isEnrolled && userPathProgress?.progress === 100;
+                
+                return (
+                  <Card key={path.id} className="overflow-hidden flex flex-col border-none shadow-lg bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
+                    <div className="h-2 bg-gradient-to-r from-purple-600 to-blue-600" />
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between">
+                        <Badge variant="outline" className={getDifficultyColor(path.difficulty)}>
+                          {path.difficulty}
+                        </Badge>
+                        <Badge className="bg-gradient-to-r from-purple-500 to-blue-500 text-white border-none">
+                          <Sparkles className="h-3 w-3 mr-1" /> Micro
+                        </Badge>
+                      </div>
+                      <CardTitle className="line-clamp-1">{path.title}</CardTitle>
+                      <CardDescription className="line-clamp-2">{path.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="py-2 flex-grow">
+                      {isEnrolled && (
+                        <div className="mb-4">
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>Progress</span>
+                            <span>{userPathProgress.progress}%</span>
+                          </div>
+                          <Progress 
+                            value={userPathProgress.progress} 
+                            className="h-2 bg-blue-100 dark:bg-blue-950/40" 
+                          />
+                        </div>
+                      )}
+                      
+                      <div className="flex flex-wrap gap-1.5 mb-4">
+                        {path.tags.slice(0, 3).map(tag => (
+                          <Badge key={tag} variant="secondary" className="text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
+                        {path.tags.length > 3 && (
+                          <Badge variant="secondary" className="text-xs">
+                            +{path.tags.length - 3} more
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center text-sm">
+                        <Clock className="h-4 w-4 mr-1 text-blue-600" />
+                        <span className="text-blue-700 dark:text-blue-400 font-medium">
+                          {path.estimatedHours < 1 
+                            ? `${Math.round(path.estimatedHours * 60)} minutes` 
+                            : `${path.estimatedHours} hours`}
+                        </span>
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <Button 
+                        onClick={() => navigate(`/learning-paths/${path.id}`)}
+                        className="w-full gap-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                      >
+                        {isCompleted 
+                          ? "View Certificate" 
+                          : isEnrolled 
+                            ? "Continue Learning" 
+                            : "Start Quick Learning"}
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                );
+              })}
             </div>
           </div>
         )}

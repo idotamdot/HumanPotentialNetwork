@@ -12,6 +12,10 @@ export const learningPaths = pgTable("learning_paths", {
   estimatedHours: integer("estimated_hours").notNull(),
   tags: text("tags").array().notNull(),
   thumbnail: text("thumbnail"),
+  creatorId: integer("creator_id").references(() => users.id), // Added for AI-generated paths
+  isPublished: boolean("is_published").default(true), // Control publishing status
+  imageUrl: text("image_url"), // Different from thumbnail, for cover images
+  isMicroLearning: boolean("is_micro_learning").default(false), // Flag for micro-learning paths
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -25,10 +29,14 @@ export const learningModules = pgTable("learning_modules", {
   pathId: integer("path_id").notNull().references(() => learningPaths.id),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  type: text("type").notNull(), // video, article, quiz, exercise, etc.
+  type: text("type").default("content").notNull(), // video, article, quiz, exercise, etc.
   content: text("content").notNull(), // URL or markdown content
-  duration: integer("duration").notNull(), // in minutes
-  sequence: integer("sequence").notNull(), // order in the learning path
+  duration: integer("duration").default(5).notNull(), // in minutes
+  sequence: integer("sequence").default(1).notNull(), // order in the learning path
+  order: integer("order").default(1), // Alternative to sequence for micro-learning
+  estimatedMinutes: integer("estimated_minutes").default(5), // Alternative to duration
+  resourceLinks: text("resource_links").array().default([]),
+  quizQuestions: json("quiz_questions").default([]),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

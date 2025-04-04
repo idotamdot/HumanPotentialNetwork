@@ -1,0 +1,160 @@
+import OpenAI from "openai";
+import { LearningPath, LearningModule, InsertLearningPath, InsertLearningModule } from "@shared/schema";
+import { storage } from "../storage";
+
+// Initialize the OpenAI client
+console.log("Initializing OpenAI with API key exists:", !!process.env.OPENAI_API_KEY);
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+export class OpenAIService {
+  // Generate a micro-learning path based on a topic and user interests
+  static async generateMicroLearningPath(
+    topic: string,
+    userInterests?: string[],
+    userId?: number,
+    timeConstraint?: number // in minutes
+  ): Promise<{ learningPath: LearningPath; modules: LearningModule[] }> {
+    try {
+      // Get user skills if userId is provided
+      let userSkills: string[] = [];
+      if (userId) {
+        const skills = await storage.getUserSkills(userId);
+        userSkills = skills.map((s) => s.name);
+      }
+
+      // Prepare the prompt for GPT
+      const prompt = this.createMicroLearningPathPrompt(
+        topic, 
+        userInterests || [], 
+        userSkills,
+        timeConstraint
+      );
+
+      // Call the OpenAI API
+      console.log("Calling OpenAI API for topic:", topic);
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an expert educational content creator specialized in creating concise, effective micro-learning paths. Create content suitable for the Human Potential Network platform.",
+          },
+          { role: "user", content: prompt },
+        ],
+        response_format: { type: "json_object" },
+      });
+      console.log("OpenAI API call successful");
+      
+      // Parse the response
+      const content = response.choices[0].message.content;
+      if (!content) {
+        throw new Error("Failed to generate learning path content");
+      }
+
+      const pathData = JSON.parse(content);
+
+      // Create the learning path
+      const insertLearningPath: InsertLearningPath = {
+        title: pathData.title,
+        description: pathData.description,
+        category: pathData.category,
+        difficulty: pathData.difficulty,
+        estimatedHours: pathData.estimatedHours,
+        tags: pathData.tags,
+        thumbnail: pathData.imageUrl || null,
+        creatorId: userId || null,
+        isPublished: true,
+        imageUrl: pathData.imageUrl || null,
+        isMicroLearning: true,
+      };
+
+      const learningPath = await storage.createLearningPath(insertLearningPath);
+
+      // Create the modules
+      const modules: LearningModule[] = [];
+      for (const moduleData of pathData.modules) {
+        // Set default type if not provided
+        const moduleType = "content";
+        
+        // Create a description from title or content if not provided
+        const moduleDescription = moduleData.description || moduleData.title || 
+          (moduleData.content && moduleData.content.length > 100 
+            ? moduleData.content.substring(0, 100) + '...' 
+            : moduleData.content || 'No description available');
+        
+        // Map the module data to our schema
+        const insertModule: InsertLearningModule = {
+          pathId: learningPath.id,
+          title: moduleData.title,
+          description: moduleDescription,
+          type: moduleType,
+          content: moduleData.content,
+          duration: moduleData.estimatedMinutes || 5,
+          sequence: moduleData.order || 1,
+          order: moduleData.order || 1,
+          estimatedMinutes: moduleData.estimatedMinutes || 5,
+          resourceLinks: moduleData.resourceLinks || [],
+          quizQuestions: moduleData.quizQuestions || [],
+        };
+
+        const module = await storage.createLearningModule(insertModule);
+        modules.push(module);
+      }
+
+      return { learningPath, modules };
+    } catch (error) {
+      console.error("Error generating micro-learning path:", error);
+      throw new Error("Failed to generate micro-learning path");
+    }
+  }
+
+  static createMicroLearningPathPrompt(
+    topic: string,
+    userInterests: string[],
+    userSkills: string[],
+    timeConstraint?: number
+  ): string {
+    let maxTimeMinutes = timeConstraint || 30;
+    let maxModules = Math.max(3, Math.min(5, Math.floor(maxTimeMinutes / 5)));
+
+    return `Create a micro-learning path on the topic of "${topic}".
+${userInterests.length > 0 ? `The user is interested in: ${userInterests.join(", ")}.` : ""}
+${userSkills.length > 0 ? `The user already has skills in: ${userSkills.join(", ")}.` : ""}
+The total time for this micro-learning path should be no more than ${maxTimeMinutes} minutes.
+
+Create a learning path with ${maxModules} modules that can be completed in small chunks of time.
+For each module, include 1-2 quiz questions to test understanding.
+
+Return the result in JSON format with the following structure:
+{
+  "title": "Title of the learning path",
+  "description": "A concise description of what will be learned",
+  "category": "One of: Technology, Climate, Health, Education, Social Justice, Economics",
+  "difficulty": "One of: Beginner, Intermediate, Advanced",
+  "estimatedHours": Number (keep this low for micro-learning, usually under 1),
+  "tags": ["tag1", "tag2", "tag3"],
+  "imageUrl": null,
+  "modules": [
+    {
+      "title": "Module title",
+      "content": "Detailed content for the module, including examples, explanations, and insights. Format with markdown.",
+      "order": 1,
+      "estimatedMinutes": number,
+      "resourceLinks": ["url1", "url2"],
+      "quizQuestions": [
+        {
+          "question": "Question text?",
+          "options": ["option1", "option2", "option3", "option4"],
+          "correctAnswer": "The correct option"
+        }
+      ]
+    }
+  ]
+}
+
+Make the content educational, engaging, and actionable.`;
+  }
+}
