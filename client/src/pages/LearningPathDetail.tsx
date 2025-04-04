@@ -266,13 +266,13 @@ export default function LearningPathDetail() {
               <div className="flex-1">
                 {/* Category and Difficulty Badges */}
                 <div className="flex items-center gap-2 mb-2 md:mb-3 overflow-x-auto pb-1 md:pb-0 no-scrollbar">
-                  <Badge className="whitespace-nowrap">{learningPath.category}</Badge>
-                  <Badge variant="outline" className="whitespace-nowrap">{learningPath.difficulty}</Badge>
+                  <Badge className="whitespace-nowrap">{learningPath?.category}</Badge>
+                  <Badge variant="outline" className="whitespace-nowrap">{learningPath?.difficulty}</Badge>
                   
                   {/* Move Timing Info to Top Row on Mobile */}
                   <div className="ml-auto flex items-center md:hidden text-xs whitespace-nowrap">
                     <Clock className="h-3.5 w-3.5 mr-1 text-muted-foreground shrink-0" />
-                    <span className="text-muted-foreground">{learningPath.estimatedHours}h</span>
+                    <span className="text-muted-foreground">{learningPath?.estimatedHours}h</span>
                     <span className="mx-1 text-muted-foreground">•</span>
                     <BookOpen className="h-3.5 w-3.5 mr-1 text-muted-foreground shrink-0" />
                     <span className="text-muted-foreground">{modules?.length || 0} modules</span>
@@ -280,16 +280,16 @@ export default function LearningPathDetail() {
                 </div>
                 
                 {/* Title */}
-                <h1 className="text-2xl md:text-3xl font-bold mb-2">{learningPath.title}</h1>
+                <h1 className="text-2xl md:text-3xl font-bold mb-2">{learningPath?.title}</h1>
                 
                 {/* Description - Shorter on Mobile */}
                 <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4 line-clamp-2 md:line-clamp-none">
-                  {learningPath.description}
+                  {learningPath?.description}
                 </p>
                 
                 {/* Tags - Scrollable on Mobile */}
                 <div className="flex gap-1.5 mb-3 md:mb-4 overflow-x-auto pb-1 md:pb-0 no-scrollbar md:flex-wrap">
-                  {learningPath.tags.map(tag => (
+                  {learningPath?.tags?.map(tag => (
                     <Badge key={tag} variant="secondary" className="whitespace-nowrap text-xs md:text-sm">{tag}</Badge>
                   ))}
                 </div>
@@ -298,7 +298,7 @@ export default function LearningPathDetail() {
                 <div className="hidden md:flex flex-col xs:flex-row gap-3 sm:gap-6">
                   <div className="flex items-center">
                     <Clock className="h-5 w-5 mr-2 text-muted-foreground" />
-                    <span>{learningPath.estimatedHours} hours total</span>
+                    <span>{learningPath?.estimatedHours} hours total</span>
                   </div>
                   <div className="flex items-center">
                     <BookOpen className="h-5 w-5 mr-2 text-muted-foreground" />
@@ -393,7 +393,7 @@ export default function LearningPathDetail() {
                 <div className="space-y-8">
                   <div>
                     <h2 className="text-xl font-semibold mb-2">About this Learning Path</h2>
-                    <p className="text-muted-foreground">{learningPath.description}</p>
+                    <p className="text-muted-foreground">{learningPath?.description}</p>
                   </div>
                   
                   <div>
@@ -425,7 +425,7 @@ export default function LearningPathDetail() {
                   <div>
                     <h2 className="text-xl font-semibold mb-3">Skills You'll Gain</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                      {learningPath.tags.map((tag) => (
+                      {learningPath?.tags?.map((tag) => (
                         <div key={tag} className="bg-accent/40 p-3 rounded-md flex items-center gap-2">
                           <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
                           <span>{tag}</span>
@@ -549,7 +549,7 @@ export default function LearningPathDetail() {
                         <div className="min-w-[280px] md:min-w-0">
                           <Certificate 
                             userName={user?.name || ""}
-                            courseName={learningPath.title}
+                            courseName={learningPath?.title || ""}
                             issueDate={format(new Date(), "MMMM dd, yyyy")}
                           />
                         </div>
@@ -610,7 +610,7 @@ export default function LearningPathDetail() {
                 <div className="min-w-[280px]">
                   <Certificate 
                     userName={user?.name || ""}
-                    courseName={learningPath.title}
+                    courseName={learningPath?.title || ""}
                     issueDate={userProgress?.completedAt 
                       ? format(new Date(userProgress.completedAt), "MMMM dd, yyyy") 
                       : format(new Date(), "MMMM dd, yyyy")}
