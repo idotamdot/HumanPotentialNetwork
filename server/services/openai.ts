@@ -14,14 +14,24 @@ export class OpenAIService {
     topic: string,
     userInterests?: string[],
     userId?: number,
-    timeConstraint?: number // in minutes
+    timeConstraint?: number, // in minutes
+    selectedSkills?: string[] // Skills selected by user during generation
   ): Promise<{ learningPath: LearningPath; modules: LearningModule[] }> {
     try {
       // Get user skills if userId is provided
       let userSkills: string[] = [];
       if (userId) {
-        const skills = await storage.getUserSkills(userId);
-        userSkills = skills.map((s) => s.name);
+        // If selected skills are provided, use those instead
+        if (selectedSkills && selectedSkills.length > 0) {
+          userSkills = selectedSkills;
+        } else {
+          // Otherwise fetch from database
+          const skills = await storage.getUserSkills(userId);
+          userSkills = skills.map((s) => s.name);
+        }
+      } else if (selectedSkills && selectedSkills.length > 0) {
+        // Use selected skills even if no user ID
+        userSkills = selectedSkills;
       }
 
       // Prepare the prompt for GPT

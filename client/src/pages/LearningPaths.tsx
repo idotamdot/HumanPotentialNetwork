@@ -375,7 +375,7 @@ export default function LearningPaths() {
                           <MicroLearningProgress
                             pathId={path.id}
                             modules={modules || []}
-                            userProgress={userPathProgress}
+                            userProgress={userPathProgress || undefined}
                             onNavigateToPath={() => navigate(`/learning-paths/${path.id}`)}
                           />
                         );

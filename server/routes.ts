@@ -331,7 +331,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Micro Learning Path Generation routes
   app.post("/api/micro-learning/generate", isAuthenticated, async (req, res) => {
     try {
-      const { topic, interests, timeConstraint } = req.body;
+      const { topic, interests, timeConstraint, skills } = req.body;
       
       if (!topic) {
         return res.status(400).json({ message: "Topic is required" });
@@ -342,7 +342,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         topic, 
         interests || [], 
         userId,
-        timeConstraint
+        timeConstraint,
+        skills || []
       );
       
       res.status(201).json({
