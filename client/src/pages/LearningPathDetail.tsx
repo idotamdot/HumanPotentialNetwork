@@ -497,54 +497,63 @@ export default function LearningPathDetail() {
                             <div className="px-3 py-4 md:px-4 md:pl-12 space-y-4">
                               <p className="text-sm text-muted-foreground">{module.description}</p>
                               
-                              {/* Content display - handle URL and non-URL content types */}
-                              {module.content && module.content.startsWith('http') ? (
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                  <a 
-                                    href={module.content} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="inline-flex"
-                                  >
-                                    <Button variant="outline" size="sm" className="gap-1 h-9 text-sm">
-                                      <ExternalLink className="h-4 w-4" />
-                                      <span className="md:inline">Open Content</span>
-                                    </Button>
-                                  </a>
-                                  
-                                  {isEnrolled && !completed && (
-                                    <Button 
-                                      size="sm"
-                                      className="gap-1 bg-gradient-to-r from-green-600 to-teal-600 h-9 text-sm"
-                                      onClick={() => markModuleCompleted(module.id)}
+                              {/* Content display - show button for both URL and non-URL content */}
+                              <div className="flex flex-wrap gap-2 mt-2">
+                                {module.content && (
+                                  module.content.startsWith('http') ? (
+                                    <a 
+                                      href={module.content} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="inline-flex"
                                     >
-                                      <CheckCircle2 className="h-4 w-4" />
-                                      <span className="md:inline">Mark Complete</span>
-                                    </Button>
-                                  )}
-                                </div>
-                              ) : (
-                                <>
-                                  <div className="w-full mt-2 bg-muted/30 p-4 rounded-md border">
-                                    <h4 className="font-medium mb-2 text-sm text-primary">Module Content</h4>
-                                    <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
-                                      {module.content}
-                                    </div>
-                                  </div>
-                                  
-                                  {isEnrolled && !completed && (
-                                    <div className="mt-3 flex justify-end">
-                                      <Button 
-                                        size="sm"
-                                        className="gap-1 bg-gradient-to-r from-green-600 to-teal-600 h-9 text-sm"
-                                        onClick={() => markModuleCompleted(module.id)}
-                                      >
-                                        <CheckCircle2 className="h-4 w-4" />
-                                        <span className="md:inline">Mark Complete</span>
+                                      <Button variant="outline" size="sm" className="gap-1 h-9 text-sm">
+                                        <ExternalLink className="h-4 w-4" />
+                                        <span className="md:inline">Open Content</span>
                                       </Button>
-                                    </div>
-                                  )}
-                                </>
+                                    </a>
+                                  ) : (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="gap-1 h-9 text-sm"
+                                      onClick={() => {
+                                        // Show content in modal or expandable section
+                                        const contentSection = document.getElementById(`content-${module.id}`);
+                                        if (contentSection) {
+                                          contentSection.classList.toggle('hidden');
+                                        }
+                                      }}
+                                    >
+                                      <FileText className="h-4 w-4" />
+                                      <span className="md:inline">View Content</span>
+                                    </Button>
+                                  )
+                                )}
+                                
+                                {isEnrolled && !completed && (
+                                  <Button 
+                                    size="sm"
+                                    className="gap-1 bg-gradient-to-r from-green-600 to-teal-600 h-9 text-sm"
+                                    onClick={() => markModuleCompleted(module.id)}
+                                  >
+                                    <CheckCircle2 className="h-4 w-4" />
+                                    <span className="md:inline">Mark Complete</span>
+                                  </Button>
+                                )}
+                              </div>
+                              
+                              {/* Display text content in a hidden div that can be toggled */}
+                              {module.content && !module.content.startsWith('http') && (
+                                <div 
+                                  id={`content-${module.id}`} 
+                                  className="w-full mt-3 bg-muted/30 p-4 rounded-md border hidden"
+                                >
+                                  <h4 className="font-medium mb-2 text-sm text-primary">Module Content</h4>
+                                  <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground">
+                                    {module.content}
+                                  </div>
+                                </div>
                               )}
                             </div>
                           </AccordionContent>
