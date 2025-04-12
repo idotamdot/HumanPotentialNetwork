@@ -48,7 +48,7 @@ import {
   CheckCircle2,
   Info,
   Clock,
-  EqualCircle,
+  CircleDot,
   AlertCircle,
   Lightbulb,
   Flame
@@ -211,7 +211,7 @@ export default function Marketplace() {
       default:
         return (
           <Badge variant="outline">
-            <EqualCircle className="h-3 w-3 mr-1" /> {status}
+            <CircleDot className="h-3 w-3 mr-1" /> {status}
           </Badge>
         );
     }

@@ -348,8 +348,8 @@ const ProposalDetail = ({ proposalId, isOpen, onClose }: ProposalDetailProps) =>
                 <h3 className="text-lg font-medium mb-2">Recent Votes</h3>
                 {votesData && votesData.length > 0 ? (
                   <div className="space-y-3">
-                    {votesData.slice(0, 5).map(({ vote, user }) => (
-                      <div key={vote.id} className="flex items-center gap-3 p-2 bg-muted rounded-md">
+                    {votesData.slice(0, 5).map(({ vote, user }, index) => (
+                      <div key={vote?.id || index} className="flex items-center gap-3 p-2 bg-muted rounded-md">
                         <Avatar className="h-8 w-8">
                           <AvatarImage src={user?.avatar || ""} alt={user?.name || "User"} />
                           <AvatarFallback>{user?.name ? user.name.substring(0, 2) : "U"}</AvatarFallback>

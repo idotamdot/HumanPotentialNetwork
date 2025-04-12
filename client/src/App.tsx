@@ -14,6 +14,7 @@ import KidsZone from "@/pages/KidsZone";
 import Governance from "@/pages/Governance";
 import LearningPaths from "@/pages/LearningPaths";
 import LearningPathDetail from "@/pages/LearningPathDetail";
+import Marketplace from "@/pages/Marketplace";
 import AuthPage from "@/pages/auth-page"; 
 import AppLayout from "@/components/layout/AppLayout";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
@@ -45,6 +46,7 @@ function Router() {
       <ProtectedRoute path="/rewards" component={Rewards} />
       <ProtectedRoute path="/kids" component={KidsZone} />
       <ProtectedRoute path="/governance" component={Governance} />
+      <ProtectedRoute path="/marketplace" component={Marketplace} />
       <Route component={NotFound} />
     </Switch>
   );
