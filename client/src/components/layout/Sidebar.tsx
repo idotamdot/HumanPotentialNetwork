@@ -17,6 +17,7 @@ export default function Sidebar() {
     { href: "/learning-paths", label: "Learning Paths", icon: sidebarIcons.learning },
     { href: "/governance", label: "Governance", icon: sidebarIcons.governance },
     { href: "/rewards", label: "Rewards", icon: sidebarIcons.award },
+    { href: "/marketplace", label: "Marketplace", icon: sidebarIcons.marketplace },
     { href: "/kids", label: "Young Changemakers", icon: sidebarIcons.kids },
   ];
 
