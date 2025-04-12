@@ -213,7 +213,12 @@ export default function LearningPathDetail() {
   };
 
   // Render module icon based on type
-  const renderModuleIcon = (type: string) => {
+  const renderModuleIcon = (type?: string) => {
+    // Default to content type if undefined
+    if (!type) {
+      return <FileText className="h-5 w-5 text-gray-500" />;
+    }
+    
     switch (type.toLowerCase()) {
       case 'video':
         return <Video className="h-5 w-5 text-blue-500" />;
