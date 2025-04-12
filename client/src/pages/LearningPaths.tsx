@@ -10,7 +10,8 @@ import {
   Filter,
   X,
   BarChart,
-  Sparkles
+  Sparkles,
+  Zap
 } from "lucide-react";
 import {
   Card,
@@ -37,8 +38,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { LearningPath, UserLearningProgress } from "@shared/schema";
+import { LearningPath, UserLearningProgress, LearningModule } from "@shared/schema";
 import MicroLearningGenerator from "@/components/MicroLearningGenerator";
+import MicroLearningProgress from "@/components/learning/MicroLearningProgress";
 
 // Helper function to determine the card color based on path category
 const getCategoryColor = (category: string): string => {
@@ -81,6 +83,12 @@ export default function LearningPaths() {
   // Fetch micro-learning paths
   const { data: microLearningPaths, isLoading: loadingMicroPaths } = useQuery<LearningPath[]>({
     queryKey: ["/api/micro-learning"],
+  });
+  
+  // Function to fetch learning modules for micro-learning paths
+  const fetchLearningModulesQuery = (pathId: number) => useQuery<LearningModule[]>({
+    queryKey: ["/api/learning-paths", pathId, "modules"],
+    enabled: !!pathId,
   });
   
   // Fetch user's enrolled learning paths if logged in
@@ -345,19 +353,6 @@ export default function LearningPaths() {
                       <CardDescription className="line-clamp-2">{path.description}</CardDescription>
                     </CardHeader>
                     <CardContent className="py-2 flex-grow">
-                      {isEnrolled && (
-                        <div className="mb-4">
-                          <div className="flex justify-between text-sm mb-1">
-                            <span>Progress</span>
-                            <span>{userPathProgress.progress}%</span>
-                          </div>
-                          <Progress 
-                            value={userPathProgress.progress} 
-                            className="h-2 bg-blue-100 dark:bg-blue-950/40" 
-                          />
-                        </div>
-                      )}
-                      
                       <div className="flex flex-wrap gap-1.5 mb-4">
                         {path.tags.slice(0, 3).map(tag => (
                           <Badge key={tag} variant="secondary" className="text-xs">
@@ -371,28 +366,21 @@ export default function LearningPaths() {
                         )}
                       </div>
                       
-                      <div className="flex items-center text-sm">
-                        <Clock className="h-4 w-4 mr-1 text-blue-600" />
-                        <span className="text-blue-700 dark:text-blue-400 font-medium">
-                          {path.estimatedHours < 1 
-                            ? `${Math.round(path.estimatedHours * 60)} minutes` 
-                            : `${path.estimatedHours} hours`}
-                        </span>
-                      </div>
+                      {/* Fetch modules and display progress with the dedicated component */}
+                      {(() => {
+                        // Use IIFE to manage module data fetching within the component scope
+                        const { data: modules } = fetchLearningModulesQuery(path.id);
+                        
+                        return (
+                          <MicroLearningProgress
+                            pathId={path.id}
+                            modules={modules || []}
+                            userProgress={userPathProgress}
+                            onNavigateToPath={() => navigate(`/learning-paths/${path.id}`)}
+                          />
+                        );
+                      })()}
                     </CardContent>
-                    <CardFooter>
-                      <Button 
-                        onClick={() => navigate(`/learning-paths/${path.id}`)}
-                        className="w-full gap-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                      >
-                        {isCompleted 
-                          ? "View Certificate" 
-                          : isEnrolled 
-                            ? "Continue Learning" 
-                            : "Start Quick Learning"}
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </CardFooter>
                   </Card>
                 );
               })}

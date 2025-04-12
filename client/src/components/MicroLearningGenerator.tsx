@@ -56,48 +56,6 @@ export default function MicroLearningGenerator() {
     enabled: !!user && open,
   });
   
-  // Track generation progress with animation
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
-    if (generateMutation.isPending && generationStep < 3) {
-      interval = setInterval(() => {
-        setGenerationStep(prev => {
-          if (prev >= 3) {
-            clearInterval(interval);
-            return prev;
-          }
-          return prev + 1;
-        });
-      }, 1200);
-    }
-    
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [generateMutation.isPending]);
-  
-  // Progress animation effect
-  useEffect(() => {
-    if (generateMutation.isPending) {
-      const interval = setInterval(() => {
-        setGenerationProgress(prev => {
-          // Increment progress but never reach 100% until complete
-          const nextProgress = prev + (Math.random() * 5);
-          return Math.min(nextProgress, 95);
-        });
-      }, 300);
-      
-      return () => clearInterval(interval);
-    } else if (!generateMutation.isPending && generateMutation.isSuccess) {
-      // Complete the progress instantly on success
-      setGenerationProgress(100);
-    } else {
-      // Reset progress
-      setGenerationProgress(0);
-    }
-  }, [generateMutation.isPending, generateMutation.isSuccess]);
-
   // Mutation for generating a micro-learning path
   const generateMutation = useMutation({
     mutationFn: async (data: {
@@ -143,6 +101,48 @@ export default function MicroLearningGenerator() {
       setGenerationProgress(0);
     },
   });
+
+  // Track generation progress with animation
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (generateMutation.isPending && generationStep < 3) {
+      interval = setInterval(() => {
+        setGenerationStep(prev => {
+          if (prev >= 3) {
+            clearInterval(interval);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1200);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [generateMutation.isPending]);
+  
+  // Progress animation effect
+  useEffect(() => {
+    if (generateMutation.isPending) {
+      const interval = setInterval(() => {
+        setGenerationProgress(prev => {
+          // Increment progress but never reach 100% until complete
+          const nextProgress = prev + (Math.random() * 5);
+          return Math.min(nextProgress, 95);
+        });
+      }, 300);
+      
+      return () => clearInterval(interval);
+    } else if (!generateMutation.isPending && generateMutation.isSuccess) {
+      // Complete the progress instantly on success
+      setGenerationProgress(100);
+    } else {
+      // Reset progress
+      setGenerationProgress(0);
+    }
+  }, [generateMutation.isPending, generateMutation.isSuccess]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

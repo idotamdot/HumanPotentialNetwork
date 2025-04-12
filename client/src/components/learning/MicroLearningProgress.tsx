@@ -49,7 +49,7 @@ export default function MicroLearningProgress({
   const timeRemaining = !isEnrolled || !progress?.completedModules 
     ? totalTimeMinutes 
     : modules
-        .filter(m => !progress.completedModules.includes(m.id))
+        .filter(m => !progress.completedModules?.includes(m.id))
         .reduce((acc, m) => acc + (m.duration || 5), 0);
   
   // Format time display
