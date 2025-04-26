@@ -22,8 +22,12 @@ import {
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
+import connectPg from "connect-pg-simple";
+import { db, pool } from "./db";
+import { eq, and } from "drizzle-orm";
 
 const MemoryStore = createMemoryStore(session);
+const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
   sessionStore: session.Store;
@@ -1660,4 +1664,188 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  public sessionStore: session.Store;
+
+  constructor() {
+    this.sessionStore = new PostgresSessionStore({ 
+      pool, 
+      createTableIfMissing: true 
+    });
+  }
+
+  // User methods
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async updateUser(id: number, data: Partial<User>): Promise<User | undefined> {
+    const [updatedUser] = await db
+      .update(users)
+      .set(data)
+      .where(eq(users.id, id))
+      .returning();
+    return updatedUser || undefined;
+  }
+
+  // Skills methods
+  async getUserSkills(userId: number): Promise<Skill[]> {
+    return db.select().from(skills).where(eq(skills.userId, userId));
+  }
+
+  async createSkill(insertSkill: InsertSkill): Promise<Skill> {
+    const [skill] = await db
+      .insert(skills)
+      .values(insertSkill)
+      .returning();
+    return skill;
+  }
+
+  async updateSkill(id: number, data: Partial<Skill>): Promise<Skill | undefined> {
+    const [updatedSkill] = await db
+      .update(skills)
+      .set(data)
+      .where(eq(skills.id, id))
+      .returning();
+    return updatedSkill || undefined;
+  }
+
+  async deleteSkill(id: number): Promise<boolean> {
+    const result = await db.delete(skills).where(eq(skills.id, id));
+    return !!result;
+  }
+
+  // Remaining methods will be implemented as needed...
+  // For now we'll fall back to the MemStorage for the rest of the methods
+
+  // Using a memory storage instance to handle unimplemented methods
+  private memStorage = new MemStorage();
+
+  // Issues methods
+  async getAllIssues(): Promise<Issue[]> {
+    return this.memStorage.getAllIssues();
+  }
+
+  async getIssue(id: number): Promise<Issue | undefined> {
+    return this.memStorage.getIssue(id);
+  }
+
+  async createIssue(issue: InsertIssue): Promise<Issue> {
+    return this.memStorage.createIssue(issue);
+  }
+
+  // Projects methods
+  async getAllProjects(): Promise<Project[]> {
+    return this.memStorage.getAllProjects();
+  }
+
+  async getProject(id: number): Promise<Project | undefined> {
+    return this.memStorage.getProject(id);
+  }
+
+  async getProjectsByIssue(issueId: number): Promise<Project[]> {
+    return this.memStorage.getProjectsByIssue(issueId);
+  }
+
+  async createProject(project: InsertProject): Promise<Project> {
+    return this.memStorage.createProject(project);
+  }
+
+  async updateProject(id: number, data: Partial<Project>): Promise<Project | undefined> {
+    return this.memStorage.updateProject(id, data);
+  }
+
+  // Delegate all other methods to memStorage for now
+  async getUserProjects(userId: number) { return this.memStorage.getUserProjects(userId); }
+  async addUserToProject(userProject: InsertUserProject) { return this.memStorage.addUserToProject(userProject); }
+  async removeUserFromProject(userId: number, projectId: number) { return this.memStorage.removeUserFromProject(userId, projectId); }
+  async getProjectRecommendations(userId: number) { return this.memStorage.getProjectRecommendations(userId); }
+  async createProjectRecommendation(rec: InsertProjectRecommendation) { return this.memStorage.createProjectRecommendation(rec); }
+  async clearProjectRecommendations(userId: number) { return this.memStorage.clearProjectRecommendations(userId); }
+  async getAllImpacts() { return this.memStorage.getAllImpacts(); }
+  async getUserImpacts(userId: number) { return this.memStorage.getUserImpacts(userId); }
+  async createImpact(impact: InsertImpact) { return this.memStorage.createImpact(impact); }
+  async getImpact(id: number) { return this.memStorage.getImpact(id); }
+  async getAllLearningPaths() { return this.memStorage.getAllLearningPaths(); }
+  async getLearningPath(id: number) { return this.memStorage.getLearningPath(id); }
+  async getLearningPathsByCategory(category: string) { return this.memStorage.getLearningPathsByCategory(category); }
+  async getLearningPathsByTag(tag: string) { return this.memStorage.getLearningPathsByTag(tag); }
+  async createLearningPath(path: InsertLearningPath) { return this.memStorage.createLearningPath(path); }
+  async updateLearningPath(id: number, data: Partial<LearningPath>) { return this.memStorage.updateLearningPath(id, data); }
+  async getLearningModulesByPath(pathId: number) { return this.memStorage.getLearningModulesByPath(pathId); }
+  async getLearningModule(id: number) { return this.memStorage.getLearningModule(id); }
+  async createLearningModule(module: InsertLearningModule) { return this.memStorage.createLearningModule(module); }
+  async updateLearningModule(id: number, data: Partial<LearningModule>) { return this.memStorage.updateLearningModule(id, data); }
+  async getUserLearningPaths(userId: number) { return this.memStorage.getUserLearningPaths(userId); }
+  async getUserPathProgress(userId: number, pathId: number) { return this.memStorage.getUserPathProgress(userId, pathId); }
+  async createUserLearningProgress(progress: InsertUserLearningProgress) { return this.memStorage.createUserLearningProgress(progress); }
+  async updateUserLearningProgress(id: number, data: Partial<UserLearningProgress>) { return this.memStorage.updateUserLearningProgress(id, data); }
+  async getLearningPathSkills(pathId: number) { return this.memStorage.getLearningPathSkills(pathId); }
+  async createLearningPathSkill(skill: InsertLearningPathSkill) { return this.memStorage.createLearningPathSkill(skill); }
+  async deleteLearningPathSkill(id: number) { return this.memStorage.deleteLearningPathSkill(id); }
+  async getAllProposals() { return this.memStorage.getAllProposals(); }
+  async getProposal(id: number) { return this.memStorage.getProposal(id); }
+  async getProjectProposals(projectId: number) { return this.memStorage.getProjectProposals(projectId); }
+  async getUserProposals(userId: number) { return this.memStorage.getUserProposals(userId); }
+  async createProposal(proposal: InsertGovernanceProposal) { return this.memStorage.createProposal(proposal); }
+  async updateProposal(id: number, data: Partial<GovernanceProposal>) { return this.memStorage.updateProposal(id, data); }
+  async getProposalVotes(proposalId: number) { return this.memStorage.getProposalVotes(proposalId); }
+  async getUserVote(userId: number, proposalId: number) { return this.memStorage.getUserVote(userId, proposalId); }
+  async createVote(vote: InsertGovernanceVote) { return this.memStorage.createVote(vote); }
+  async deleteVote(userId: number, proposalId: number) { return this.memStorage.deleteVote(userId, proposalId); }
+  async getProposalComments(proposalId: number) { return this.memStorage.getProposalComments(proposalId); }
+  async getComment(id: number) { return this.memStorage.getComment(id); }
+  async createComment(comment: InsertGovernanceComment) { return this.memStorage.createComment(comment); }
+  async deleteComment(id: number) { return this.memStorage.deleteComment(id); }
+  async getUserMessages(userId: number) { return this.memStorage.getUserMessages(userId); }
+  async getConversation(user1Id: number, user2Id: number) { return this.memStorage.getConversation(user1Id, user2Id); }
+  async getUnreadMessageCount(userId: number) { return this.memStorage.getUnreadMessageCount(userId); }
+  async sendMessage(message: InsertMessage) { return this.memStorage.sendMessage(message); }
+  async markMessageAsRead(id: number) { return this.memStorage.markMessageAsRead(id); }
+  async markAllMessagesAsRead(userId: number) { return this.memStorage.markAllMessagesAsRead(userId); }
+  async getUserNotifications(userId: number) { return this.memStorage.getUserNotifications(userId); }
+  async getUnreadNotificationCount(userId: number) { return this.memStorage.getUnreadNotificationCount(userId); }
+  async createNotification(notification: InsertNotification) { return this.memStorage.createNotification(notification); }
+  async markNotificationAsRead(id: number) { return this.memStorage.markNotificationAsRead(id); }
+  async markAllNotificationsAsRead(userId: number) { return this.memStorage.markAllNotificationsAsRead(userId); }
+  async getUserTokenHistory(userId: number) { return this.memStorage.getUserTokenHistory(userId); }
+  async getUserTokenBalance(userId: number) { return this.memStorage.getUserTokenBalance(userId); }
+  async awardTokens(token: InsertImpactToken) { return this.memStorage.awardTokens(token); }
+  async addUserTokens(token: InsertImpactToken) { return this.memStorage.addUserTokens(token); }
+  async getAllRewardItems() { return this.memStorage.getAllRewardItems(); }
+  async getAvailableRewardItems() { return this.memStorage.getAvailableRewardItems(); }
+  async getRewardItem(id: number) { return this.memStorage.getRewardItem(id); }
+  async createRewardItem(item: InsertRewardItem) { return this.memStorage.createRewardItem(item); }
+  async updateRewardItem(id: number, data: Partial<RewardItem>) { return this.memStorage.updateRewardItem(id, data); }
+  async getUserRedemptions(userId: number) { return this.memStorage.getUserRedemptions(userId); }
+  async createRedemption(redemption: InsertTokenRedemption) { return this.memStorage.createRedemption(redemption); }
+  async getRedemptionById(id: number) { return this.memStorage.getRedemptionById(id); }
+  async updateRedemptionStatus(id: number, status: string, fulfillmentDate?: Date) { return this.memStorage.updateRedemptionStatus(id, status, fulfillmentDate); }
+  async getProjectResources(projectId: number) { return this.memStorage.getProjectResources(projectId); }
+  async getProjectResource(id: number) { return this.memStorage.getProjectResource(id); }
+  async createProjectResource(resource: InsertProjectResource) { return this.memStorage.createProjectResource(resource); }
+  async updateProjectResource(id: number, data: Partial<ProjectResource>) { return this.memStorage.updateProjectResource(id, data); }
+  async deleteProjectResource(id: number) { return this.memStorage.deleteProjectResource(id); }
+  async getPublicProjectResources() { return this.memStorage.getPublicProjectResources(); }
+}
+
+// Choose which storage to use based on environment
+const isPersistentStorageEnabled = !!process.env.DATABASE_URL;
+
+export const storage = isPersistentStorageEnabled 
+  ? new DatabaseStorage() 
+  : new MemStorage();
