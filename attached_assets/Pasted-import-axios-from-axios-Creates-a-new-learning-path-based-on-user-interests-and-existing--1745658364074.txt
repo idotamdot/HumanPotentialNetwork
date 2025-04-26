@@ -1,0 +1,97 @@
+import axios from 'axios';
+
+/**
+ * Creates a new learning path based on user interests and existing skills.
+ *
+ * @param {string[]} interests - An array of strings representing the user's interests (e.g., ['React', 'Data Science', 'Node.js']).
+ * @param {string[]} existingSkills - An array of strings representing skills derived from past learning paths (e.g., ['HTML', 'CSS', 'Basic JavaScript']).
+ * @param {string} [apiUrl='/api/learning-paths'] - The API endpoint URL for creating learning paths.
+ * @returns {Promise<object>} A promise that resolves with the data of the created learning path from the API response.
+ * @throws {Error} Throws an error if the API request fails.
+ */
+async function createLearningPath(interests, existingSkills, apiUrl = '/api/learning-paths') {
+  // --- Input Validation (Optional but Recommended) ---
+  if (!Array.isArray(interests) || !Array.isArray(existingSkills)) {
+    throw new Error('Interests and existingSkills must be arrays.');
+  }
+  if (!interests.length) {
+     console.warn('Creating learning path with no specific interests.');
+     // Depending on backend logic, you might want to throw an error here instead
+     // throw new Error('Interests cannot be empty.');
+  }
+
+  // --- Prepare Data Payload ---
+  const payload = {
+    interests: interests,
+    existingSkills: existingSkills,
+    // You might need to include other data, like a userId,
+    // depending on your API design and authentication method.
+    // userId: 'user-123'
+  };
+
+  // --- Axios Request Configuration (Optional) ---
+  // Add headers if needed, e.g., for authentication
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      // Example: Add Authorization header if using Bearer tokens
+      // 'Authorization': `Bearer ${yourAuthToken}`
+    }
+  };
+
+  console.log(`Sending request to ${apiUrl} with payload:`, payload);
+
+  // --- Make the API Call ---
+  try {
+    // Send a POST request to the specified API endpoint
+    const response = await axios.post(apiUrl, payload, config);
+
+    // Log success and return the response data (often the newly created object)
+    console.log('Learning path created successfully:', response.data);
+    return response.data; // The backend should ideally return the created learning path details
+
+  } catch (error) {
+    // --- Error Handling ---
+    console.error('Error creating learning path:', error.response ? error.response.data : error.message);
+
+    // More specific error handling based on status code
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('Status:', error.response.status);
+      console.error('Headers:', error.response.headers);
+      console.error('Data:', error.response.data);
+      // You might want to throw a more specific error or handle different statuses
+      throw new Error(`API Error (${error.response.status}): ${error.response.data.message || 'Failed to create learning path'}`);
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('Request data:', error.request);
+      throw new Error('No response received from server. Check network or API status.');
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error('Error message:', error.message);
+      throw new Error(`Request setup error: ${error.message}`);
+    }
+  }
+}
+
+// --- Example Usage ---
+
+// Assume you have gathered these from the user interface or other sources
+const userInterests = ['Machine Learning', 'Python', 'Web Development'];
+const userSkillsFromPastPaths = ['Basic Python', 'HTML', 'CSS'];
+
+// Call the function to create the learning path
+createLearningPath(userInterests, userSkillsFromPastPaths)
+  .then(createdPath => {
+    // Handle the successfully created learning path data
+    console.log('--- Success ---');
+    console.log('Received created path details:', createdPath);
+    // e.g., update UI, redirect, etc.
+  })
+  .catch(error => {
+    // Handle any errors that occurred during the process
+    console.error('--- Failure ---');
+    console.error('Failed to execute learning path creation:', error.message);
+    // e.g., show an error message to the user
+  });

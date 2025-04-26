@@ -24,6 +24,7 @@ import {
 import { setupAuth } from "./auth";
 import { RecommendationService } from "./services/recommendation";
 import { OpenAIService } from "./services/openai";
+import { GeminiService } from "./services/gemini";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication
@@ -338,7 +339,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const userId = req.user?.id;
-      const result = await OpenAIService.generateMicroLearningPath(
+      
+      // Using Gemini AI instead of OpenAI
+      const result = await GeminiService.generateMicroLearningPath(
         topic, 
         interests || [], 
         userId,

@@ -1,22 +1,31 @@
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { LearningPath, LearningModule, InsertLearningPath, InsertLearningModule } from "@shared/schema";
 import { storage } from "../storage";
 
-// Initialize the OpenAI client
-console.log("Initializing OpenAI with API key exists:", !!process.env.OPENAI_API_KEY);
-// Check if we have a valid API key
-if (!process.env.OPENAI_API_KEY || typeof process.env.OPENAI_API_KEY !== 'string' || process.env.OPENAI_API_KEY.startsWith('Bearer ')) {
-  console.error("Invalid OpenAI API key format");
+// Function to check if we have a valid API key
+function hasValidApiKey(): boolean {
+  return !!process.env.GEMINI_API_KEY && 
+    typeof process.env.GEMINI_API_KEY === 'string' &&
+    process.env.GEMINI_API_KEY.length > 10;
 }
 
-// Create a cleaned API key - remove any 'Bearer ' prefix if somehow present
-const apiKey = process.env.OPENAI_API_KEY?.replace(/^Bearer\s+/i, '');
+// Initialize the Google Generative AI client
+console.log("Initializing Gemini API key exists:", !!process.env.GEMINI_API_KEY);
 
-const openai = new OpenAI({
-  apiKey: apiKey,
-});
+// We need to ask for a Gemini API key
+if (!hasValidApiKey()) {
+  console.warn("Missing or invalid Gemini API key. AI-powered features will not work.");
+}
 
-export class OpenAIService {
+// Create the client only if we have a key
+const genAI = hasValidApiKey() 
+  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string)
+  : null;
+
+// Get the generative model (Gemini Pro)
+const model = genAI ? genAI.getGenerativeModel({ model: "gemini-pro" }) : null;
+
+export class GeminiService {
   // Generate a micro-learning path based on a topic and user interests
   static async generateMicroLearningPath(
     topic: string,
@@ -26,6 +35,11 @@ export class OpenAIService {
     selectedSkills?: string[] // Skills selected by user during generation
   ): Promise<{ learningPath: LearningPath; modules: LearningModule[] }> {
     try {
+      // Check if we have the Gemini client
+      if (!model) {
+        throw new Error("Gemini API client not initialized. Please check your API key.");
+      }
+
       // Get user skills if userId is provided
       let userSkills: string[] = [];
       if (userId) {
@@ -42,7 +56,7 @@ export class OpenAIService {
         userSkills = selectedSkills;
       }
 
-      // Prepare the prompt for GPT
+      // Prepare the prompt for Gemini
       const prompt = this.createMicroLearningPathPrompt(
         topic, 
         userInterests || [], 
@@ -50,29 +64,36 @@ export class OpenAIService {
         timeConstraint
       );
 
-      // Call the OpenAI API
-      console.log("Calling OpenAI API for topic:", topic);
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are an expert educational content creator specialized in creating concise, effective micro-learning paths. Create content suitable for the Human Potential Network platform.",
-          },
-          { role: "user", content: prompt },
-        ],
-        response_format: { type: "json_object" },
-      });
-      console.log("OpenAI API call successful");
+      // Call the Gemini API
+      console.log("Calling Gemini API for topic:", topic);
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const content = response.text();
+      console.log("Gemini API call successful");
       
-      // Parse the response
-      const content = response.choices[0].message.content;
+      // Parse the response - extract the JSON
       if (!content) {
         throw new Error("Failed to generate learning path content");
       }
 
-      const pathData = JSON.parse(content);
+      // Find the JSON part of the response (usually between ``` markers)
+      const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || 
+                         content.match(/```\n([\s\S]*?)\n```/) ||
+                         content.match(/({[\s\S]*})/);
+                         
+      let jsonContent = jsonMatch ? jsonMatch[1] : content;
+      
+      // Remove any text before the first { and after the last }
+      jsonContent = jsonContent.trim();
+      const firstBraceIndex = jsonContent.indexOf('{');
+      const lastBraceIndex = jsonContent.lastIndexOf('}');
+      
+      if (firstBraceIndex >= 0 && lastBraceIndex >= 0) {
+        jsonContent = jsonContent.substring(firstBraceIndex, lastBraceIndex + 1);
+      }
+      
+      // Parse the JSON
+      const pathData = JSON.parse(jsonContent);
 
       // Create the learning path
       const insertLearningPath: InsertLearningPath = {
@@ -173,6 +194,6 @@ Return the result in JSON format with the following structure:
   ]
 }
 
-Make the content educational, engaging, and actionable.`;
+Make the content educational, engaging, and actionable. ONLY respond with the JSON, nothing else.`;
   }
 }
