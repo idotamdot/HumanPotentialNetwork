@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { useLearningPathGenerator } from "@/hooks/useLearningPathGenerator";
 import { Skill } from "@shared/schema";
 
 import {
@@ -86,21 +86,15 @@ export default function MicroLearningGenerator() {
     return expandedSkills;
   }, [userSkills]);
   
-  // Mutation for generating a micro-learning path
-  const generateMutation = useMutation({
-    mutationFn: async (data: {
-      topic: string;
-      interests?: string[];
-      skills?: string[];
-      timeConstraint?: number;
-    }) => {
-      const res = await apiRequest("POST", "/api/micro-learning/generate", data);
-      return await res.json();
-    },
-    onSuccess: (data) => {
+  // Use the new hook for generating a micro-learning path
+  const generateMutation = useLearningPathGenerator();
+  
+  // Handle success of path generation
+  useEffect(() => {
+    if (generateMutation.isSuccess && generateMutation.data) {
       toast({
         title: "Learning path generated!",
-        description: `Your custom learning path "${data.learningPath.title}" is ready.`,
+        description: `Your custom learning path "${generateMutation.data.learningPath.title}" is ready.`,
       });
       
       // Reset form state
@@ -113,24 +107,11 @@ export default function MicroLearningGenerator() {
         setGenerationStep(0);
         setGenerationProgress(0);
         
-        // Refresh the learning paths data
-        queryClient.invalidateQueries({ queryKey: ["/api/learning-paths"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/micro-learning"] });
-        
         // Navigate to the newly created learning path
-        navigate(`/learning-paths/${data.learningPath.id}`);
+        navigate(`/learning-paths/${generateMutation.data.learningPath.id}`);
       }, 1000);
-    },
-    onError: (error) => {
-      toast({
-        title: "Failed to generate learning path",
-        description: error.message || "Please try again later.",
-        variant: "destructive",
-      });
-      setGenerationStep(0);
-      setGenerationProgress(0);
-    },
-  });
+    }
+  }, [generateMutation.isSuccess, generateMutation.data, toast, navigate]);
 
   // Track generation progress with animation
   useEffect(() => {
