@@ -57,7 +57,7 @@ export default function MicroLearningGenerator() {
   });
   
   // Process user skills from comma-separated list if needed
-  const processedSkills = React.useMemo(() => {
+  const processedSkills = useMemo(() => {
     if (!userSkills || userSkills.length === 0) return [];
     
     // Handle both array of skill objects and potential comma-separated strings
