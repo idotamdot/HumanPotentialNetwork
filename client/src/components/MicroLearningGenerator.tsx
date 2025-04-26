@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -55,6 +55,36 @@ export default function MicroLearningGenerator() {
     queryKey: ["/api/users", user?.id, "skills"],
     enabled: !!user && open,
   });
+  
+  // Process user skills from comma-separated list if needed
+  const processedSkills = React.useMemo(() => {
+    if (!userSkills || userSkills.length === 0) return [];
+    
+    // Handle both array of skill objects and potential comma-separated strings
+    const expandedSkills: {id: number, name: string}[] = [];
+    
+    userSkills.forEach(skill => {
+      // Check if the skill name contains commas (comma-separated list)
+      if (skill.name.includes(',')) {
+        // Split the comma-separated skill names and create virtual skill objects
+        const skillNames = skill.name.split(',').map(s => s.trim()).filter(Boolean);
+        skillNames.forEach((name, index) => {
+          expandedSkills.push({
+            id: skill.id * 100 + index, // Generate unique IDs
+            name
+          });
+        });
+      } else {
+        // Just add the skill as-is
+        expandedSkills.push({
+          id: skill.id,
+          name: skill.name
+        });
+      }
+    });
+    
+    return expandedSkills;
+  }, [userSkills]);
   
   // Mutation for generating a micro-learning path
   const generateMutation = useMutation({
@@ -313,9 +343,9 @@ export default function MicroLearningGenerator() {
                   Choose skills you already have to help tailor the learning path to your knowledge level.
                 </p>
                 
-                {userSkills && userSkills.length > 0 ? (
+                {processedSkills.length > 0 ? (
                   <div className="grid grid-cols-2 gap-3 mb-4">
-                    {userSkills.map(skill => (
+                    {processedSkills.map(skill => (
                       <div key={skill.id} className="flex items-center space-x-2">
                         <Checkbox 
                           id={`skill-${skill.id}`} 
