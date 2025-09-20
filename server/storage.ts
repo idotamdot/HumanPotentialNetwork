@@ -1668,6 +1668,9 @@ export class DatabaseStorage implements IStorage {
   public sessionStore: session.Store;
 
   constructor() {
+    if (!pool) {
+      throw new Error("Database pool not initialized. DATABASE_URL required for DatabaseStorage.");
+    }
     this.sessionStore = new PostgresSessionStore({ 
       pool, 
       createTableIfMissing: true 
@@ -1676,16 +1679,19 @@ export class DatabaseStorage implements IStorage {
 
   // User methods
   async getUser(id: number): Promise<User | undefined> {
+    if (!db) throw new Error("Database not initialized");
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
+    if (!db) throw new Error("Database not initialized");
     const [user] = await db.select().from(users).where(eq(users.username, username));
     return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
+    if (!db) throw new Error("Database not initialized");
     const [user] = await db
       .insert(users)
       .values(insertUser)
