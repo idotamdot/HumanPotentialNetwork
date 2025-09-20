@@ -11,16 +11,8 @@ import { useState } from "react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { MobileThemeSelector } from "@/components/ui/mobile-theme-selector";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SkillSuggestionDialog } from "@/components/profile/SkillSuggestionDialog";
+import { PassionSuggestionDialog } from "@/components/profile/PassionSuggestionDialog";
 import { skillsData } from "@/lib/utils";
 
 export default function Profile() {
@@ -33,9 +25,6 @@ export default function Profile() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [skillDialogOpen, setSkillDialogOpen] = useState(false);
   const [passionDialogOpen, setPassionDialogOpen] = useState(false);
-  const [newSkillName, setNewSkillName] = useState("");
-  const [newSkillProficiency, setNewSkillProficiency] = useState(70);
-  const [newPassionName, setNewPassionName] = useState("");
   
   const { data: skills = [], isLoading } = useQuery<any[]>({
     queryKey: [`/api/users/${user?.id}/skills`],
@@ -63,8 +52,6 @@ export default function Profile() {
         title: "Skill added",
         description: "Your new skill has been added successfully."
       });
-      setNewSkillName("");
-      setNewSkillProficiency(70);
       setSkillDialogOpen(false);
     },
     onError: () => {
@@ -92,7 +79,6 @@ export default function Profile() {
         title: "Passion added",
         description: "Your new passion/interest has been added successfully."
       });
-      setNewPassionName("");
       setPassionDialogOpen(false);
     },
     onError: () => {
@@ -104,33 +90,15 @@ export default function Profile() {
     }
   });
   
-  const handleAddSkill = () => {
-    if (!newSkillName.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a skill name.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
+  const handleAddSkill = (skillName: string, proficiency: number) => {
     addSkillMutation.mutate({
-      name: newSkillName,
-      proficiency: newSkillProficiency
+      name: skillName,
+      proficiency: proficiency
     });
   };
   
-  const handleAddPassion = () => {
-    if (!newPassionName.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a passion/interest name.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    addPassionMutation.mutate(newPassionName);
+  const handleAddPassion = (passionName: string) => {
+    addPassionMutation.mutate(passionName);
   };
 
   const handleSave = async () => {
@@ -287,51 +255,14 @@ export default function Profile() {
                           />
                         ))}
                       </div>
-                      <Dialog open={skillDialogOpen} onOpenChange={setSkillDialogOpen}>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" className="mt-4" size="sm">
-                            Add Skill
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Add New Skill</DialogTitle>
-                            <DialogDescription>
-                              Add a new skill to your profile. This will help match you with relevant projects.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="grid gap-4 py-4">
-                            <div className="grid gap-2">
-                              <Label htmlFor="skill-name">Skill Name</Label>
-                              <Input
-                                id="skill-name"
-                                placeholder="e.g., Python Programming"
-                                value={newSkillName}
-                                onChange={(e) => setNewSkillName(e.target.value)}
-                              />
-                            </div>
-                            <div className="grid gap-2">
-                              <Label htmlFor="skill-proficiency">Proficiency (1-100)</Label>
-                              <Input
-                                id="skill-proficiency"
-                                type="number"
-                                min="1"
-                                max="100"
-                                value={newSkillProficiency}
-                                onChange={(e) => setNewSkillProficiency(parseInt(e.target.value))}
-                              />
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <Button
-                              onClick={handleAddSkill}
-                              disabled={addSkillMutation.isPending || !newSkillName}
-                            >
-                              {addSkillMutation.isPending ? "Adding..." : "Add Skill"}
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+                      <Button 
+                        variant="outline" 
+                        className="mt-4" 
+                        size="sm"
+                        onClick={() => setSkillDialogOpen(true)}
+                      >
+                        Add Skill
+                      </Button>
                     </div>
                     
                     <div>
@@ -347,43 +278,33 @@ export default function Profile() {
                           </Badge>
                         ))}
                       </div>
-                      <Dialog open={passionDialogOpen} onOpenChange={setPassionDialogOpen}>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" className="mt-4" size="sm">
-                            Add Passion
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Add New Passion/Interest</DialogTitle>
-                            <DialogDescription>
-                              Add a new passion or interest to your profile. This will help you find projects that align with your values.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="grid gap-4 py-4">
-                            <div className="grid gap-2">
-                              <Label htmlFor="passion-name">Passion/Interest Name</Label>
-                              <Input
-                                id="passion-name"
-                                placeholder="e.g., Climate Action"
-                                value={newPassionName}
-                                onChange={(e) => setNewPassionName(e.target.value)}
-                              />
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <Button
-                              onClick={handleAddPassion}
-                              disabled={addPassionMutation.isPending || !newPassionName}
-                            >
-                              {addPassionMutation.isPending ? "Adding..." : "Add Passion"}
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+                      <Button 
+                        variant="outline" 
+                        className="mt-4" 
+                        size="sm"
+                        onClick={() => setPassionDialogOpen(true)}
+                      >
+                        Add Passion
+                      </Button>
                     </div>
                   </div>
                 )}
+                
+                {/* Enhanced Skill Dialog */}
+                <SkillSuggestionDialog
+                  open={skillDialogOpen}
+                  onOpenChange={setSkillDialogOpen}
+                  onAddSkill={handleAddSkill}
+                  isLoading={addSkillMutation.isPending}
+                />
+                
+                {/* Enhanced Passion Dialog */}
+                <PassionSuggestionDialog
+                  open={passionDialogOpen}
+                  onOpenChange={setPassionDialogOpen}
+                  onAddPassion={handleAddPassion}
+                  isLoading={addPassionMutation.isPending}
+                />
               </CardContent>
             </Card>
             
